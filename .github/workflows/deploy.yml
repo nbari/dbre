@@ -6,10 +6,25 @@ on:
     branches:
       - main
   pull_request:
+  workflow_dispatch:
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: github.ref != 'refs/heads/main'
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+      - name: Build and deploy
+        uses: shalzz/zola-deploy-action@v0.18.0
+        env:
+          BUILD_DIR: .
+          PAGES_BRANCH: preview
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+
   build_and_deploy:
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
     steps:
       - name: Checkout main
         uses: actions/checkout@v4
