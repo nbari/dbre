@@ -1,1 +1,1 @@
-- [ ] The destination branch is **preview**?
+- [ ] The destination branch is **develop**?
