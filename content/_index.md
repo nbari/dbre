@@ -3,7 +3,7 @@ title = "index"
 insert_anchor_links = "right"
 +++
 
-# Welcome to DBRE.xyz!
+## Welcome to DBRE.xyz 🌱
 
 Welcome to DBRE.xyz, your dedicated hub for all things Database Reliability
 Engineering (DBRE). Whether you're an experienced DBA, a DevOps professional,
@@ -26,6 +26,9 @@ At DBRE.xyz, we explore topics such as:
 - Best practices for ensuring database security and disaster recovery.
 - Comprehensive approaches to database backups and restoration.
 
+And many more aspects of ensuring reliable and scalable databases.
+
+
 ## Join!
 
 We believe that fostering innovation and knowledge-sharing starts with
@@ -42,5 +45,7 @@ are invaluable.
 - **Submit Tutorials:** Offer step-by-step guides on DBRE tools and practices.
 
 Together, let's build a comprehensive resource that helps everyone enhance
-their database reliability and performance. Join us, share your insights, and
-help us create a thriving community at DBRE.xyz!
+their database reliability and performance.
+
+Join us, share your insights, and help us create a thriving community at
+DBRE.xyz 🌱.
