@@ -3,7 +3,11 @@ title = "Latency & Connectivity"
 weight = 2
 +++
 
-To test connectivity, and latency you can use `pgbench` for example:
+## pgbench
+
+[pgbench](https://www.postgresql.org/docs/current/pgbench.html) — run a benchmark test on PostgreSQL
+
+To test connectivity and latency you can using `pgbench` for example:
 
 Create a file named `query.sql` with contents:
 
@@ -16,7 +20,8 @@ Then run `pgbench` with:
     pgbench -h <IP> -U <user> -d <database> -c 1 -T 10 -f query.sql
 
 * -c is for the number of clients
-* -T to run it for 10 seconds
+* -T duration of benchmark in seconds
+* -f path to script (`query.sql`) in this case.
 
 The output will be something like:
 
