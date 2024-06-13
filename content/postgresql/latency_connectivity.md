@@ -1,5 +1,6 @@
 +++
-title = "Latency"
+title = "Latency & Connectivity"
+weight = 2
 +++
 
 To test connectivity, and latency you can use `pgbench` for example:
