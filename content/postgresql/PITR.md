@@ -13,6 +13,8 @@ want to go back to that specific time to find if there is the required data
 
 > if timezone is omitted, local time is assumed, for UTC use +00
 
+## Stop Postgresql
+
 First you need to stop postgres:
 
 ```sh
@@ -21,18 +23,27 @@ systemctl stop postgresql.service
 
 > this varies depending on your operating system here I am using [Debian 12](https://www.debian.org/News/2023/20230610)
 
+## Remove PGDATA
+
 Now remove the PGDATA directory, in my case:
 
 ```sh
 rm -rf /db/16
 ```
 
+## Restore (--target-action=pause)
+
 Perform the initialy recovery with [pgbackrest restore](https://pgbackrest.org/user-guide.html#restore), restore to the
 desired point in time, but it is importan to set `--target-action=pause` so
 recovery pauses once the target is reached instead of promoting the node:
 
 ```sh
-pgbackrest --stanza=standalone --delta --log-level-console=info --type=time --target="2024-06-17 09:18:22+00" --target-action=pause restore
+pgbackrest --stanza=standalone \
+--delta \
+--log-level-console=info \
+--type=time \
+--target="2024-06-17 09:18:22+00" \
+--target-action=pause restore
 ```
 
 This will output something like this:
@@ -47,6 +58,8 @@ WARN: --delta or --force specified but unable to find 'PG_VERSION' or 'backup.ma
 2024-06-18 16:21:46.240 P00   INFO: restore size = 29.6MB, file total = 1270
 2024-06-18 16:21:46.241 P00   INFO: restore command end: completed successfully (43260ms)
 ```
+
+## pg_ctl
 
 Start using `pg_ctl -D PGDATA start`
 
@@ -90,6 +103,8 @@ $ psql -c "show recovery_target_time"
 (1 row)
 ```
 
+## recovery_target_time
+
 To set a new target:
 
 ```sh
@@ -120,6 +135,8 @@ server started
 
 If data is not at the desired point, set a new `recovery_target_time` and repeat previous steps.
 
+## pg_promote
+
 When data is at the desired point, promote Postgres to primary:
 
 ```sh
@@ -135,6 +152,8 @@ And you can now stop postgres with:
 ```sh
 /usr/lib/postgresql/16/bin/pg_ctl -D /db/16 stop
 ```
+
+## Start Postgresql
 
 Start now using:
 
