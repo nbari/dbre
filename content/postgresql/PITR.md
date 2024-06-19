@@ -37,8 +37,8 @@ pgbackrest --stanza=standalone --delta --log-level-console=info --type=time --ta
 
 This will output something like this:
 
-```log
-postgres@pg16:~$ pgbackrest --stanza=standalone --delta --log-level-console=info --type=time --target="2024-06-17 09:18:22+00" --target-action=pause restore
+```sh
+$ pgbackrest --stanza=standalone --delta --log-level-console=info --type=time --target="2024-06-17 09:18:22+00" --target-action=pause restore
 2024-06-18 16:21:02.983 P00   INFO: restore command begin 2.52: --delta --exec-id=721872-e8f6a592 --log-level-console=info --log-path=/db/pgbackrest/log --pg1-path=/db/16 --process-max=3 --repo1-cipher-pass=<redacted> --repo1-cipher-type=aes-256-cbc --repo1-path=/repo1 --repo1-s3-bucket=pg16 --repo1-s3-endpoint=my-s3-endpoint --repo1-s3-key=<redacted> --repo1-s3-key-secret=<redacted> --repo1-s3-region=region --no-repo1-storage-verify-tls --repo1-type=s3 --spool-path=/db/pgbackrest/spool --stanza=standalone --target="2024-06-17 09:18:22+00" --target-action=pause --type=time
 WARN: --delta or --force specified but unable to find 'PG_VERSION' or 'backup.manifest' in '/db/16' to confirm that this is a valid $PGDATA directory. --delta and --force have been disabled and if any files exist in the destination directories the restore will be aborted.
 2024-06-18 16:21:03.398 P00   INFO: repo1: restore backup set 20240612-190741F_20240615-101611I, recovery will start at 2024-06-15 10:16:11
@@ -57,7 +57,7 @@ Start using `pg_ctl -D PGDATA start`
 
 In the Postgres logs, you can check that WAL replay paused once the configured recovery target was reached:
 
-```log
+```
 024-06-18 16:24:19.279 P00   INFO: found 00000001000000000000008B in the archive asynchronously
 2024-06-18 16:24:19.279 P00   INFO: archive-get command end: completed successfully (2ms)
 time=2024-06-18 16:24:19 UTC, pid=721892 LOG:  restored log file "00000001000000000000008B" from archive
@@ -91,7 +91,8 @@ $ psql -c "show recovery_target_time"
 ```
 
 To set a new target:
-```shell
+
+```sh
 psql -c "ALTER SYSTEM SET recovery_target_time TO '2024-06-17 09:30:00+00'"
 ```
 
@@ -154,7 +155,7 @@ management over.
 
 In `postgresql.conf` check this options:
 
-```
+```toml
 archive_command = 'pgbackrest --config=/etc/pgbackrest/pgbackrest.conf --stanza=<stanza_name> archive-push %p'
 archive_mode = on
 archive_timeout = 300
