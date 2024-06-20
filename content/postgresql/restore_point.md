@@ -8,7 +8,7 @@ or deployment activities is crucial. One effective way to safeguard your
 database is by using the `pg_create_restore_point` function. This function
 creates a named, durable restore point which can be used to recover the
 database to a specific state using Point-in-Time Recovery (PITR). Here's a
-brief introduction on how to utilize pg_create_restore_point before performing
+brief introduction on how to utilize `pg_create_restore_point` before performing
 maintenance or deploying changes.
 
 ## Create
@@ -19,7 +19,14 @@ Create a restore point named `RP1`:
 SELECT pg_create_restore_point('RP1');
 ```
 
-After doing this, you can restore that that point `RP1`.
+Get the Log Sequence Number (LSN) and the current timestamp, and save them as a
+reference:
+
+```sql
+SELECT pg_current_wal_lsn(), current_timestamp;
+```
+
+After doing this, you can restore that that point `RP1` by following next steps:
 
 ## Stop
 
@@ -49,5 +56,13 @@ recovery_target_name = 'RP1'
 Start postgresql and check the data:
 
 ```sh
-systemctl stop postgresql.service
+systemctl start postgresql.service
+```
+
+## promote
+
+After the recovery and if data is at the desired point:
+
+```sql
+SELECT pg_promote();
 ```
