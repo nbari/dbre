@@ -32,5 +32,5 @@ easydocs_uglyurls = false
 
 # Minimum number of headings needed on a page before the headings show in the navigation on the left. Defaults to 5.
 # Can be used for example to always show headings on each page by setting it to 1.
-easydocs_heading_threshold = 5
+easydocs_heading_threshold = 3
 # Put all your custom variables here
