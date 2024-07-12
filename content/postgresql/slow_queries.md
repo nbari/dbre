@@ -3,7 +3,7 @@ title = "slow queries"
 weight = 4
 +++
 
-To log all slow queries add to your config:
+To log all slow queries add to your config `postgresql.conf`:
 
 ```config
 log_min_duration_statement = 5s
