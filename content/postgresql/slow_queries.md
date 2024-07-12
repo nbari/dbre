@@ -14,13 +14,7 @@ Be careful with the option `log_duration = on` since it will log all request
 
 > You need to have `logging_collector = on`
 
-+----------------------------+
-| log_min_duration_statement |
-|----------------------------|
-| 5s                         |
-+----------------------------+
-
-Then postgres:
+Then reload postgres:
 
 ```sql
 SELECT pg_reload_conf()
