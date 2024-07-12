@@ -1,5 +1,5 @@
 +++
-title = "log_min_duration_statement"
+title = "slow queries"
 weight = 4
 +++
 
@@ -38,5 +38,3 @@ postgres> SHOW log_min_duration_statement;
 | 5s                         |
 +----------------------------+
 ```
-
-
