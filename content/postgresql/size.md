@@ -3,7 +3,7 @@ title = "database size"
 weight = 6
 +++
 
-## Database size:
+## Database size
 
 ```sql
 SELECT pg_size_pretty(pg_database_size(current_database()));
@@ -11,7 +11,7 @@ SELECT pg_size_pretty(pg_database_size(current_database()));
 > this is limited to the current database
 
 
-## All the databases:
+## All databases
 
 To get size for all the databases:
 
@@ -41,7 +41,7 @@ ORDER BY
     pg_total_relation_size(table_schema || '.' || table_name) DESC;
 ```
 
-## For schema not public
+## Schema not public
 
 ```sql
 SELECT
