@@ -33,8 +33,8 @@ rm -rf /db/16
 
 ## Restore (--target-action=pause)
 
-Perform the initialy recovery with [pgbackrest restore](https://pgbackrest.org/user-guide.html#restore), restore to the
-desired point in time, but it is importan to set `--target-action=pause` so
+Perform the initially recovery with [pgbackrest restore](https://pgbackrest.org/user-guide.html#restore), restore to the
+desired point in time, but it is important to set `--target-action=pause` so
 recovery pauses once the target is reached instead of promoting the node:
 
 ```sh
@@ -43,6 +43,19 @@ pgbackrest --stanza=standalone \
 --log-level-console=info \
 --type=time \
 --target="2024-06-17 09:18:22+00" \
+--target-action=pause restore
+```
+
+### LSN
+
+In case you want to restore to an LSN (output of select pg_switch_wal();) you can use:
+
+```sh
+pgbackrest --stanza=standalone \
+--delta \
+--log-level-console=info \
+--type=lsn \
+--target="19/EC000000" \
 --target-action=pause restore
 ```
 
@@ -185,3 +198,53 @@ To archive manually switching WAL files ensures that the current WAL file is com
 ```sh
 psql -c "select pg_switch_wal();"
 ```
+
+
+## timelines
+
+If you restore multiple times it could happen that you are in a different
+timeline, to check the current timeline, you can use `pgbcakrest info` or also `pgbackres repo-ls archive`, for example this is the output of `pgbackrest info`:
+
+```
+full backup: 20250119-125503F
+     timestamp start/stop: 2025-01-19 12:55:03+01 / 2025-01-19 12:56:26+01
+     wal start/stop: 0000002D000001160000006C / 0000002D000001160000006D
+     database size: 28.8GB, database backup size: 28.8GB
+     repo1: backup size: 5.0GB
+
+ diff backup: 20250119-125503F_20250120-125503D
+     timestamp start/stop: 2025-01-20 12:55:03+01 / 2025-01-20 12:56:07+01
+     wal start/stop: 0000002D000001170000009A / 0000002D000001170000009B
+     database size: 28.8GB, database backup size: 3.4GB
+     repo1: backup size: 365.3MB
+     backup reference total: 1 full
+
+ diff backup: 20250119-125503F_20250121-125503D
+     timestamp start/stop: 2025-01-21 12:55:03+01 / 2025-01-21 12:56:13+01
+     wal start/stop: 0000002D00000118000000B5 / 0000002D00000118000000B6
+     database size: 28.9GB, database backup size: 3.4GB
+     repo1: backup size: 418.9MB
+     backup reference total: 1 full
+
+ diff backup: 20250119-125503F_20250122-015503D
+     timestamp start/stop: 2025-01-22 01:55:03+01 / 2025-01-22 01:57:28+01
+     wal start/stop: 0000002E000001190000004E / 0000002E000001190000004F
+     database size: 28.9GB, database backup size: 3.5GB
+     repo1: backup size: 661.8MB
+     backup reference total: 1 full
+
+```
+
+If you would like to restore to `2025-01-22 09:55:22.716307+00` the timeline is `2E` and the LSN is `0000002E000001190000004F`, but to use it in pgbackrest you need to use `46` the decimal value, so you could use something like:
+
+```sh
+pgbackrest --stanza=standalone \
+--delta \
+--log-level-console=info \
+--type=time \
+--target="2024-06-17 09:18:22+00" \
+--target=timeline=46 \
+--target-action=pause restore
+```
+
+> the `--target=timeline=46` is the decimal value of the timeline `2E`
