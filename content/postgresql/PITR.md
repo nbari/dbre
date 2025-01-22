@@ -243,7 +243,7 @@ pgbackrest --stanza=standalone \
 --log-level-console=info \
 --type=time \
 --target="2024-06-17 09:18:22+00" \
---target=timeline=46 \
+--target-timeline=46 \
 --target-action=pause restore
 ```
 
