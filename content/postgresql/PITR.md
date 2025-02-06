@@ -177,7 +177,7 @@ systemctl start postgresql.service
 
 ## Patroni
 
-Stop all nodes in your cluster and follow the restore procesure in node 1 after
+Stop all nodes in your cluster and follow the restore procedure in node 1 after
 you are at the desired point promote the server and then start
 [Patroni](https://github.com/patroni/patroni) so that it can take the
 management over.
@@ -196,7 +196,7 @@ archive_timeout = 300
 To archive manually switching WAL files ensures that the current WAL file is completed and archived promptly:
 
 ```sh
-psql -c "select pg_switch_wal();"
+psql -c "select *, current_timestamp from pg_switch_wal()";
 ```
 
 
