@@ -76,7 +76,7 @@ problem libraries is in the file:
 Failure, exiting
 ```
 
-In this case, the upgrade is not possible because of missing libraries, you can check the `loadable_libraries.txt` file to see which libraries are missing, in this case the `postgis` library is missing.:
+In this case, the upgrade is not possible because of missing libraries, you can check the `loadable_libraries.txt` file to see which libraries are missing, in this case the `postgis-3` library is missing:
 
 ```txt
 could not load library "$libdir/postgis-3": ERROR:  could not access file "$libdir/postgis-3": No such file or directory
