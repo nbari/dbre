@@ -83,3 +83,41 @@ could not load library "$libdir/postgis-3": ERROR:  could not access file "$libd
 In database: test_dev1
 In database: restore_test_dev1
 ```
+
+After fixing the missing libraries you can run the `pg_upgrade` command again and output should be like:
+
+```txt
+Performing Consistency Checks on Old Live Server
+------------------------------------------------
+Checking cluster versions                                     ok
+Checking database user is the install user                    ok
+Checking database connection settings                         ok
+Checking for prepared transactions                            ok
+Checking for system-defined composite types in user tables    ok
+Checking for reg* data types in user tables                   ok
+Checking for contrib/isn with bigint-passing mismatch         ok
+Checking for incompatible "aclitem" data type in user tables  ok
+Checking for presence of required libraries                   ok
+Checking database user is the install user                    ok
+Checking for prepared transactions                            ok
+Checking for new cluster tablespace directories               ok
+
+*Clusters are compatible*
+```
+
+## upgrade
+
+Run the upgrade:
+
+```sh
+/usr/lib/postgresql/16/bin/pg_upgrade \
+    --old-datadir=/db/15 \
+    --new-datadir=/db/16 \
+    --old-bindir=/usr/lib/postgresql/15/bin \
+    --new-bindir=/usr/lib/postgresql/16/bin \
+    --old-options="-c config_file=/db/15/postgresql.conf" \
+    --new-options="-c config_file=/db/16/postgresql.conf"\
+    --link
+```
+
+> you need to stop the old postgres server before running this command `systemctl stop postgresql-15`
