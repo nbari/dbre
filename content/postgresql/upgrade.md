@@ -84,6 +84,12 @@ In database: test_dev1
 In database: restore_test_dev1
 ```
 
+It can happen that you end in a loop because when installing the new libraries it will remove the old extensions, for this you can copy the `/usr/lib/postgresql/15/lib` to `/usr/lib/postgresql/15/lib.old` do the upgrade and then move back `lib.old` to `lib` this can help to run the upgrade since the extstensions need to be available in the old and new lib directory.
+
+> in RH based systems the libraries are in `/usr/pgsql-15/lib` and `/usr/pgsql-16/lib` respectively
+
+
+
 After fixing the missing libraries you can run the `pg_upgrade` command again and output should be like:
 
 ```txt
@@ -121,3 +127,112 @@ Run the upgrade:
 ```
 
 > you need to stop the old postgres server before running this command `systemctl stop postgresql-15`
+
+The output should be like:
+
+```txt
+Performing Consistency Checks
+-----------------------------
+Checking cluster versions                                     ok
+Checking database user is the install user                    ok
+Checking database connection settings                         ok
+Checking for prepared transactions                            ok
+Checking for system-defined composite types in user tables    ok
+Checking for reg* data types in user tables                   ok
+Checking for contrib/isn with bigint-passing mismatch         ok
+Checking for incompatible "aclitem" data type in user tables  ok
+Creating dump of global objects                               ok
+Creating dump of database schemas
+                                                              ok
+Checking for presence of required libraries                   ok
+Checking database user is the install user                    ok
+Checking for prepared transactions                            ok
+Checking for new cluster tablespace directories               ok
+
+If pg_upgrade fails after this point, you must re-initdb the
+new cluster before continuing.
+
+Performing Upgrade
+------------------
+Setting locale and encoding for new cluster                   ok
+Analyzing all rows in the new cluster                         ok
+Freezing all rows in the new cluster                          ok
+Deleting files from new pg_xact                               ok
+Copying old pg_xact to new server                             ok
+Setting oldest XID for new cluster                            ok
+Setting next transaction ID and epoch for new cluster         ok
+Deleting files from new pg_multixact/offsets                  ok
+Copying old pg_multixact/offsets to new server                ok
+Deleting files from new pg_multixact/members                  ok
+Copying old pg_multixact/members to new server                ok
+Setting next multixact ID and offset for new cluster          ok
+Resetting WAL archives                                        ok
+Setting frozenxid and minmxid counters in new cluster         ok
+Restoring global objects in the new cluster                   ok
+Restoring database schemas in the new cluster
+                                                              ok
+Adding ".old" suffix to old global/pg_control                 ok
+
+If you want to start the old cluster, you will need to remove
+the ".old" suffix from /db/15/global/pg_control.old.
+Because "link" mode was used, the old cluster cannot be safely
+started once the new cluster has been started.
+Linking user relation files
+                                                              ok
+Setting next OID for new cluster                              ok
+Sync data directory to disk                                   ok
+Creating script to delete old cluster                         ok
+Checking for extension updates                                notice
+
+Your installation contains extensions that should be updated
+with the ALTER EXTENSION command.  The file
+    update_extensions.sql
+when executed by psql by the database superuser will update
+these extensions.
+
+Upgrade Complete
+----------------
+Optimizer statistics are not transferred by pg_upgrade.
+Once you start the new server, consider running:
+    /usr/lib/postgresql/16/bin/vacuumdb --all --analyze-in-stages
+Running this script will delete the old cluster's data files:
+    ./delete_old_cluster.sh
+timed out waiting for input: auto-logout
+```
+
+## disable old
+
+Disable the old postgres version:
+
+```sh
+systemctl disable postgresql-15.service
+```
+
+## verify PGDATA
+
+Verify the new `PGDATA` is correct, check with:
+
+```sh
+systemctl cat postgresql-16.service
+```
+
+Ensure the `Environment` variable is set to the new `PGDATA`:
+
+```txt
+Environment=PGDATA=/db/16
+```
+
+
+## start new
+
+Start the new postgres version:
+
+```sh
+systemctl start postgresql-16.service
+```
+
+Run the `vacuumdb` command to update the optimizer statistics:
+
+```sh
+/usr/lib/postgresql/16/bin/vacuumdb --all --analyze-in-stages
+```
