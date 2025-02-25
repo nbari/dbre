@@ -54,3 +54,32 @@ Check if the upgrade is possible:
 > You need to run this command as the `postgres` user
 
 The output can be something like:
+
+```txt
+Performing Consistency Checks on Old Live Server
+------------------------------------------------
+Checking cluster versions                                     ok
+Checking database user is the install user                    ok
+Checking database connection settings                         ok
+Checking for prepared transactions                            ok
+Checking for system-defined composite types in user tables    ok
+Checking for reg* data types in user tables                   ok
+Checking for contrib/isn with bigint-passing mismatch         ok
+Checking for incompatible "aclitem" data type in user tables  ok
+Checking for presence of required libraries                   fatal
+
+Your installation references loadable libraries that are missing from the
+new installation.  You can add these libraries to the new installation,
+or remove the functions using them from the old installation.  A list of
+problem libraries is in the file:
+    /db/16/pg_upgrade_output.d/20250225T182200.708/loadable_libraries.txt
+Failure, exiting
+```
+
+In this case, the upgrade is not possible because of missing libraries, you can check the `loadable_libraries.txt` file to see which libraries are missing, in this case the `postgis` library is missing.:
+
+```txt
+could not load library "$libdir/postgis-3": ERROR:  could not access file "$libdir/postgis-3": No such file or directory
+In database: test_dev1
+In database: restore_test_dev1
+```
