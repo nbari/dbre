@@ -106,7 +106,7 @@ when installing the new ones, this can cause the `pg_upgrade` to fail.
 
 After you have installed the new libraries you can run the `pg_upgrade` command again:
 
-> in RH based systems the libraries are in `/usr/pgsql-15/lib` and `/usr/pgsql-16/lib` respectively
+> in RH based systems the libraries are in `/usr/pgsql-15/lib` and `/usr/pgsql-16/lib` respectively, and may need to run: `dnf upgrade --allowerasing *.rpm` and then `dnf install *.rpm` in the directory containing the new libraries.
 
 
 After fixing the missing libraries you can run the `pg_upgrade` command again
