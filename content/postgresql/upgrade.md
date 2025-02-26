@@ -10,7 +10,7 @@ Before upgrading take a backup of your data
 Create full backup:
 
 ```sh
-pgbackrest --stanza=standalone --type=full backup
+pgbackrest --stanza=<stanza_name> --type=full backup
 ```
 
 Install the postgres version you want to upgrade to, in this case, I am
@@ -76,7 +76,9 @@ problem libraries is in the file:
 Failure, exiting
 ```
 
-In this case, the upgrade is not possible because of missing libraries, you can check the `loadable_libraries.txt` file to see which libraries are missing, in this case the `postgis-3` library is missing:
+In this case, the upgrade is not possible because of missing libraries, you can
+check the `loadable_libraries.txt` file to see which libraries are missing, in
+this case the `postgis-3` library is missing:
 
 ```txt
 could not load library "$libdir/postgis-3": ERROR:  could not access file "$libdir/postgis-3": No such file or directory
@@ -84,13 +86,31 @@ In database: test_dev1
 In database: restore_test_dev1
 ```
 
-It can happen that you end in a loop because when installing the new libraries it will remove the old extensions, for this you can copy the `/usr/lib/postgresql/15/lib` to `/usr/lib/postgresql/15/lib.old` do the upgrade and then move back `lib.old` to `lib` this can help to run the upgrade since the extstensions need to be available in the old and new lib directory.
+It can happen that you end in a loop because when installing the new libraries
+it will remove the old extensions in the `../15/lib`, for this you can copy the
+`/usr/lib/postgresql/15/lib` to `/usr/lib/postgresql/15/lib.old`:
+
+```sh
+cp -r /usr/lib/postgresql/15/lib /usr/lib/postgresql/15/lib.old
+```
+
+Do now the upgrade of the libraries for the new version, in this case, the
+`postgis-3` library and when finished move back the `lib.old`  to `lib`:
+
+```sh
+mv /usr/lib/postgresql/15/lib.old /usr/lib/postgresql/15/lib
+```
+
+This is because depending on the OS the libraries will remove the old extensions
+when installing the new ones, this can cause the `pg_upgrade` to fail.
+
+After you have installed the new libraries you can run the `pg_upgrade` command again:
 
 > in RH based systems the libraries are in `/usr/pgsql-15/lib` and `/usr/pgsql-16/lib` respectively
 
 
-
-After fixing the missing libraries you can run the `pg_upgrade` command again and output should be like:
+After fixing the missing libraries you can run the `pg_upgrade` command again
+and output should be like:
 
 ```txt
 Performing Consistency Checks on Old Live Server
