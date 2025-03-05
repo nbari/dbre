@@ -256,3 +256,53 @@ Run the `vacuumdb` command to update the optimizer statistics:
 ```sh
 /usr/lib/postgresql/16/bin/vacuumdb --all --analyze-in-stages
 ```
+
+# Patroni
+
+If you are using `Patroni` the procedure is the same, once you have all your
+extension installed, stop all nodes and work only in the primary node, you need to initialize the new data directory:
+
+```sh
+/usr/lib/postgresql/16/bin/pg_ctl initdb -D /db/16 -o --wal-segsize=16 -o --data-checksums
+```
+
+To get the current wal-segsize you can run:
+
+```sh
+ls -l /db/15/pg_wal
+-rw-r----- 1 postgres postgres 2.8K Feb 25 17:24 0000003F.history
+-rw-r----- 1 postgres postgres 2.8K Feb 25 17:24 00000040.history
+-rw-r----- 1 postgres postgres 2.8K Feb 26 09:00 00000041.history
+-rw-r----- 1 postgres postgres 2.9K Mar  2 07:52 00000042.history
+-rw-r----- 1 postgres postgres  16M Mar  5 10:22 000000430000019700000055
+-rw-r----- 1 postgres postgres  16M Mar  5 10:27 000000430000019700000056
+-rw-r----- 1 postgres postgres  16M Mar  5 10:32 000000430000019700000057
+-rw-r----- 1 postgres postgres  16M Mar  5 10:37 000000430000019700000058
+```
+In this case the `wal-segsize` is `16M`.
+
+## etcd
+
+Delete the data from etcd or remove the cluster, this is because after the
+upgrade the system id may change:
+
+```sh
+patronictl remove <cluster_name>
+```
+
+> you could get this error: `CRITICAL: system ID mismatch, node <node-name> belongs to a different cluster`
+
+## patroni.yml
+
+After the upgrade, update `patroni.yml` and set the new `PGDATA` and bin_dir, also in the create_replica_methods, put first `basebackup` for example:
+
+```yaml
+dcs:
+    postgresql:
+        create_replica_methods:
+            - basebackup
+
+postgresql:
+    bin_dir: /usr/lib/postgresql/16/bin
+    data_dir: /db/16
+```
