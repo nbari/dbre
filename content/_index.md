@@ -44,7 +44,7 @@ are invaluable.
   solutions in database reliability.
 - **Submit Tutorials:** Offer step-by-step guides on DBRE tools and practices.
 
-Create a pull request on our GitHub repository to submit your content [here ✏️](https://github.com/nbari/dbre)
+Create a pull request on our GitHub repository to submit your content [here ✏️](https://github.com/nbari/dbre/tree/main/content)
 
 Together, let's build a comprehensive resource that helps everyone enhance
 their database reliability and performance.
