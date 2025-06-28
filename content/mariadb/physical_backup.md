@@ -19,12 +19,11 @@ mariadb-backup --backup --parallel=2 --safe-slave-backup --target-dir="$BACKUP_D
 
 ## prepare
 
-Not required but nice to have since you can save work and ensure backup can be
-restored without any problems and faster
-
 ```sh
 mariadb-backup --prepare --target-dir="$BACKUP_DIR"
 ```
+
+> Warning: Advised to run this, as it will ensure that the backup works and can be restored without any problems.
 
 ## compress
 
