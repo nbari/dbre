@@ -1,5 +1,5 @@
 +++
-title = "logical backup"
+title = "Logical backup"
 weight = 1
 +++
 
@@ -17,4 +17,10 @@ mariadb-dump -h <host> -u <user> -p \
 --skip-comments \
 --single-transaction \
 --databases <database_name> > backup.sql
+```
+
+## Restoring a logical backup:
+
+```sh
+mariadb <host> -u <user> -p < backup.sql
 ```
