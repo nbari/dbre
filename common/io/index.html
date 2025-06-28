@@ -1,0 +1,323 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://dbre.xyz/main.css">
+    <link rel="icon" href="https://dbre.xyz/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <title> DBRE.xyz | I&#x2F;O </title>
+</head>
+<body>
+
+<main>
+    
+    <nav>
+            <a href="https:&#x2F;&#x2F;dbre.xyz">
+                        <img src="https://dbre.xyz/logo.svg" alt="logo"/>
+                    </a>
+                <a href="javascript:void(0);" onclick="burger()" id="mobile" class="ms-Icon--GlobalNavButton"></a>
+            <div id="trees">
+                <input class="tree-toggle" type="checkbox" id="mariadb"
+                           />
+                    <label class="tree-toggle-label"
+                           for="mariadb">MariaDB</label>
+
+                    <ul class="subtree">
+                        <li >
+                                <a href="https://dbre.xyz/mariadb/logical-backup/">Logical backup</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/mariadb/physical-backup/">Physical backup</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/mariadb/lock-wait-timeout/">Lock Wait Timeout</a>
+                            </li>
+
+                            </ul>
+                <input class="tree-toggle" type="checkbox" id="postgresql"
+                           />
+                    <label class="tree-toggle-label"
+                           for="postgresql">PostgreSQL</label>
+
+                    <ul class="subtree">
+                        <li >
+                                <a href="https://dbre.xyz/postgresql/pitr/">Point-In-Time Recovery</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/latency-connectivity/">Latency &amp; Connectivity</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/restore-point/">pg_create_restore_point</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/slow-queries/">slow queries</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/psqlrc/">.psqlrc</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/size/">database size</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/extensions/">Extensions</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/upgrade/">Upgrade major version</a>
+                            </li>
+
+                            </ul>
+                <input class="tree-toggle" type="checkbox" id="common"
+                           checked/>
+                    <label class="tree-toggle-label"
+                           for="common">Common</label>
+
+                    <ul class="subtree">
+                        <li class="active">
+                                <a href="https://dbre.xyz/common/io/">I&#x2F;O</a>
+                            </li>
+
+                            
+                                    
+                                    
+                                        <ul id="toc">
+                                            <li><a href="
+                                                        https://dbre.xyz/common/io/#fio">Fio</a>
+                                                    <ul>
+                                                            <li>
+                                                                    <a href="https://dbre.xyz/common/io/#random-read-only">Random Read Only</a>
+                                                                </li>
+                                                            <li>
+                                                                    <a href="https://dbre.xyz/common/io/#random-write-only">Random Write Only</a>
+                                                                </li>
+                                                            <li>
+                                                                    <a href="https://dbre.xyz/common/io/#postgresql">PostgreSQL</a>
+                                                                </li>
+                                                            <li>
+                                                                    <a href="https://dbre.xyz/common/io/#wal-like-sequential-writes-fsync">WAL-like Sequential Writes (fsync)</a>
+                                                                </li>
+                                                            <li>
+                                                                    <a href="https://dbre.xyz/common/io/#temporary-table-i-o">Temporary Table I&#x2F;O</a>
+                                                                </li>
+                                                            <li>
+                                                                    <a href="https://dbre.xyz/common/io/#cleanup">Cleanup</a>
+                                                                </li>
+                                                            <li>
+                                                                    <a href="https://dbre.xyz/common/io/#fio-output-example">fio output example</a>
+                                                                </li>
+                                                            </ul>
+                                                    </li>
+                                            <li><a href="
+                                                        https://dbre.xyz/common/io/#dd">dd</a>
+                                                    </li>
+                                            </ul>
+                                    </ul>
+                </div>
+        </nav>
+    <article>
+
+        <div id="on_right">
+                <span id="search-ico" class="ms-Icon--Search"></span>
+            </div>
+            <div class="search-container">
+                <input id="search" type="search" placeholder="Search as you type...">
+                <div class="search-results">
+                    <div class="search-results__header"></div>
+                    <ul class="search-results__items"></ul>
+                </div>
+            </div>
+        <div id="wrap">
+            
+        <h2 id="fio">Fio&nbsp;<a class="anchor" href="#fio">&#xE732;</a></h2>
+<p>To test speed of disks (read/write), for databases is preferred to use <code>fio</code>, is a much more accurate and better to simulate database-like I/O patterns, for example:</p>
+<blockquote>
+<p>Notice the block size (<code>bs</code>) is set to 16k, which is a common for MariaDB, for PostgreSQL you might want to use 8k or 4k depending on your configuration.</p>
+</blockquote>
+<p><strong>Note:</strong> Make sure you have <code>fio</code> installed on your system. And also run the commands in the mountpoint of the disk you want to test (where the database files are located).</p>
+<pre data-lang="bash" style="background-color:#2b303b;color:#c0c5ce;" class="language-bash "><code class="language-bash" data-lang="bash"><span style="color:#bf616a;">fio --name</span><span>=mariadb-rw \
+</span><span style="color:#bf616a;">    --ioengine</span><span>=libaio \
+</span><span style="color:#bf616a;">    --rw</span><span>=randrw \
+</span><span style="color:#bf616a;">    --rwmixread</span><span>=70 \
+</span><span style="color:#bf616a;">    --bs</span><span>=16k \
+</span><span style="color:#bf616a;">    --direct</span><span>=1 \
+</span><span style="color:#bf616a;">    --size</span><span>=10G \
+</span><span style="color:#bf616a;">    --numjobs</span><span>=4 \
+</span><span style="color:#bf616a;">    --runtime</span><span>=60 \
+</span><span style="color:#bf616a;">    --group_reporting </span><span>\
+</span><span style="color:#bf616a;">    --filename</span><span>=testfile
+</span></code></pre>
+<blockquote>
+<p>Use --size=10G or adjust based on your available space — ensure it's larger than RAM to avoid cache bias.</p>
+</blockquote>
+<h3 id="random-read-only">Random Read Only&nbsp;<a class="anchor" href="#random-read-only">&#xE732;</a></h3>
+<p>Example simulating read-heavy OLAP load:</p>
+<pre data-lang="bash" style="background-color:#2b303b;color:#c0c5ce;" class="language-bash "><code class="language-bash" data-lang="bash"><span style="color:#bf616a;">fio --name</span><span>=mariadb-read \
+</span><span style="color:#bf616a;">    --ioengine</span><span>=libaio \
+</span><span style="color:#bf616a;">    --rw</span><span>=randread \
+</span><span style="color:#bf616a;">    --bs</span><span>=16k \
+</span><span style="color:#bf616a;">    --direct</span><span>=1 \
+</span><span style="color:#bf616a;">    --size</span><span>=10G \
+</span><span style="color:#bf616a;">    --numjobs</span><span>=4 \
+</span><span style="color:#bf616a;">    --runtime</span><span>=60 \
+</span><span style="color:#bf616a;">    --group_reporting </span><span>\
+</span><span style="color:#bf616a;">    --filename</span><span>=testfile
+</span></code></pre>
+<h3 id="random-write-only">Random Write Only&nbsp;<a class="anchor" href="#random-write-only">&#xE732;</a></h3>
+<p>Example simulating intensive insert/update activity:</p>
+<pre data-lang="bash" style="background-color:#2b303b;color:#c0c5ce;" class="language-bash "><code class="language-bash" data-lang="bash"><span style="color:#bf616a;">fio --name</span><span>=mariadb-write \
+</span><span style="color:#bf616a;">    --ioengine</span><span>=libaio \
+</span><span style="color:#bf616a;">    --rw</span><span>=randwrite \
+</span><span style="color:#bf616a;">    --bs</span><span>=16k \
+</span><span style="color:#bf616a;">    --direct</span><span>=1 \
+</span><span style="color:#bf616a;">    --size</span><span>=10G \
+</span><span style="color:#bf616a;">    --numjobs</span><span>=4 \
+</span><span style="color:#bf616a;">    --runtime</span><span>=60 \
+</span><span style="color:#bf616a;">    --group_reporting </span><span>\
+</span><span style="color:#bf616a;">    --filename</span><span>=testfile
+</span></code></pre>
+<h3 id="postgresql">PostgreSQL&nbsp;<a class="anchor" href="#postgresql">&#xE732;</a></h3>
+<p>Example for PostgreSQL with 8KB block size:</p>
+<pre data-lang="bash" style="background-color:#2b303b;color:#c0c5ce;" class="language-bash "><code class="language-bash" data-lang="bash"><span>
+</span><span style="color:#bf616a;">fio --name</span><span>=postgres-rw \
+</span><span style="color:#bf616a;">    --ioengine</span><span>=libaio \
+</span><span style="color:#bf616a;">    --rw</span><span>=randrw \
+</span><span style="color:#bf616a;">    --rwmixread</span><span>=70 \
+</span><span style="color:#bf616a;">    --bs</span><span>=8k \
+</span><span style="color:#bf616a;">    --direct</span><span>=1 \
+</span><span style="color:#bf616a;">    --size</span><span>=10G \
+</span><span style="color:#bf616a;">    --numjobs</span><span>=4 \
+</span><span style="color:#bf616a;">    --runtime</span><span>=60 \
+</span><span style="color:#bf616a;">    --group_reporting </span><span>\
+</span><span style="color:#bf616a;">    --filename</span><span>=pg_testfile
+</span></code></pre>
+<h3 id="wal-like-sequential-writes-fsync">WAL-like Sequential Writes (fsync)&nbsp;<a class="anchor" href="#wal-like-sequential-writes-fsync">&#xE732;</a></h3>
+<p>To simulate WAL-like sequential writes, you can use:</p>
+<pre data-lang="bash" style="background-color:#2b303b;color:#c0c5ce;" class="language-bash "><code class="language-bash" data-lang="bash"><span style="color:#bf616a;">fio --name</span><span>=postgres-wal \
+</span><span style="color:#bf616a;">    --ioengine</span><span>=libaio \
+</span><span style="color:#bf616a;">    --rw</span><span>=write \
+</span><span style="color:#bf616a;">    --bs</span><span>=8k \
+</span><span style="color:#bf616a;">    --direct</span><span>=1 \
+</span><span style="color:#bf616a;">    --size</span><span>=1G \
+</span><span style="color:#bf616a;">    --numjobs</span><span>=1 \
+</span><span style="color:#bf616a;">    --runtime</span><span>=60 \
+</span><span style="color:#bf616a;">    --fdatasync</span><span>=1 \
+</span><span style="color:#bf616a;">    --group_reporting </span><span>\
+</span><span style="color:#bf616a;">    --filename</span><span>=pg_waltest
+</span></code></pre>
+<h3 id="temporary-table-i-o">Temporary Table I/O&nbsp;<a class="anchor" href="#temporary-table-i-o">&#xE732;</a></h3>
+<p>To simulate temporary table I/O, (sorts, hashes, joins):</p>
+<pre data-lang="bash" style="background-color:#2b303b;color:#c0c5ce;" class="language-bash "><code class="language-bash" data-lang="bash"><span style="color:#bf616a;">fio --name</span><span>=postgres-tempio \
+</span><span style="color:#bf616a;">    --ioengine</span><span>=libaio \
+</span><span style="color:#bf616a;">    --rw</span><span>=randrw \
+</span><span style="color:#bf616a;">    --rwmixread</span><span>=50 \
+</span><span style="color:#bf616a;">    --bs</span><span>=8k \
+</span><span style="color:#bf616a;">    --direct</span><span>=1 \
+</span><span style="color:#bf616a;">    --size</span><span>=2G \
+</span><span style="color:#bf616a;">    --numjobs</span><span>=2 \
+</span><span style="color:#bf616a;">    --runtime</span><span>=60 \
+</span><span style="color:#bf616a;">    --group_reporting </span><span>\
+</span><span style="color:#bf616a;">    --filename</span><span>=pg_tempfile
+</span></code></pre>
+<h3 id="cleanup">Cleanup&nbsp;<a class="anchor" href="#cleanup">&#xE732;</a></h3>
+<p>After testing, you can clean up the test files:</p>
+<pre data-lang="bash" style="background-color:#2b303b;color:#c0c5ce;" class="language-bash "><code class="language-bash" data-lang="bash"><span style="color:#bf616a;">rm -f</span><span> pg_testfile pg_waltest pg_tempfile
+</span></code></pre>
+<h3 id="fio-output-example">fio output example&nbsp;<a class="anchor" href="#fio-output-example">&#xE732;</a></h3>
+<pre data-lang="plaintext" style="background-color:#2b303b;color:#c0c5ce;" class="language-plaintext "><code class="language-plaintext" data-lang="plaintext"><span>fio --name=postgres-rw \
+</span><span>    --ioengine=libaio \
+</span><span>    --rw=randrw \
+</span><span>    --rwmixread=70 \
+</span><span>    --bs=8k \
+</span><span>    --direct=1 \
+</span><span>    --size=10G \
+</span><span>    --numjobs=4 \
+</span><span>    --runtime=60 \
+</span><span>    --group_reporting \
+</span><span>    --filename=pg_testfile
+</span><span>
+</span><span>postgres-rw: (g=0): rw=randrw, bs=(R) 8192B-8192B, (W) 8192B-8192B, (T) 8192B-8192B, ioengine=libaio, iodepth=1
+</span><span>...
+</span><span>fio-3.33
+</span><span>Starting 4 processes
+</span><span>postgres-rw: Laying out IO file (1 file / 10240MiB)
+</span><span>Jobs: 4 (f=4): [m(4)][100.0%][r=7919KiB/s,w=3443KiB/s][r=989,w=430 IOPS][eta 00m:00s]
+</span><span>postgres-rw: (groupid=0, jobs=4): err= 0: pid=434548: Wed Jun 18 05:36:07 2025
+</span><span>  read: IOPS=990, BW=7920KiB/s (8110kB/s)(464MiB/60008msec)
+</span><span>    slat (usec): min=2, max=329, avg= 9.89, stdev= 4.57
+</span><span>    clat (nsec): min=1290, max=9574.2k, avg=564570.22, stdev=307178.97
+</span><span>     lat (usec): min=106, max=9631, avg=574.46, stdev=307.37
+</span><span>    clat percentiles (usec):
+</span><span>     |  1.00th=[  198],  5.00th=[  223], 10.00th=[  239], 20.00th=[  273],
+</span><span>     | 30.00th=[  478], 40.00th=[  510], 50.00th=[  545], 60.00th=[  578],
+</span><span>     | 70.00th=[  635], 80.00th=[  701], 90.00th=[  898], 95.00th=[ 1090],
+</span><span>     | 99.00th=[ 1303], 99.50th=[ 1385], 99.90th=[ 3458], 99.95th=[ 5211],
+</span><span>     | 99.99th=[ 8455]
+</span><span>   bw (  KiB/s): min= 5008, max=10544, per=100.00%, avg=7923.79, stdev=277.47, samples=476
+</span><span>   iops        : min=  626, max= 1318, avg=990.47, stdev=34.68, samples=476
+</span><span>  write: IOPS=428, BW=3427KiB/s (3510kB/s)(201MiB/60008msec); 0 zone resets
+</span><span>    slat (usec): min=2, max=129, avg=11.14, stdev= 4.30
+</span><span>    clat (usec): min=4640, max=43184, avg=7993.70, stdev=1768.62
+</span><span>     lat (usec): min=4649, max=43200, avg=8004.84, stdev=1768.41
+</span><span>    clat percentiles (usec):
+</span><span>     |  1.00th=[ 4948],  5.00th=[ 5932], 10.00th=[ 6259], 20.00th=[ 6587],
+</span><span>     | 30.00th=[ 7046], 40.00th=[ 7373], 50.00th=[ 7767], 60.00th=[ 8160],
+</span><span>     | 70.00th=[ 8717], 80.00th=[ 9241], 90.00th=[10028], 95.00th=[10552],
+</span><span>     | 99.00th=[12256], 99.50th=[14222], 99.90th=[25822], 99.95th=[28967],
+</span><span>     | 99.99th=[33162]
+</span><span>   bw (  KiB/s): min= 2864, max= 3760, per=100.00%, avg=3428.71, stdev=36.74, samples=476
+</span><span>   iops        : min=  358, max=  470, avg=428.59, stdev= 4.59, samples=476
+</span><span>  lat (usec)   : 2=0.01%, 100=0.01%, 250=9.69%, 500=15.89%, 750=33.05%
+</span><span>  lat (usec)   : 1000=6.38%
+</span><span>  lat (msec)   : 2=4.67%, 4=0.07%, 10=27.18%, 20=2.99%, 50=0.07%
+</span><span>  cpu          : usr=0.15%, sys=0.53%, ctx=85675, majf=0, minf=45
+</span><span>  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, &gt;=64=0.0%
+</span><span>     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, &gt;=64=0.0%
+</span><span>     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, &gt;=64=0.0%
+</span><span>     issued rwts: total=59408,25708,0,0 short=0,0,0,0 dropped=0,0,0,0
+</span><span>     latency   : target=0, window=0, percentile=100.00%, depth=1
+</span><span>
+</span><span>Run status group 0 (all jobs):
+</span><span>   READ: bw=7920KiB/s (8110kB/s), 7920KiB/s-7920KiB/s (8110kB/s-8110kB/s), io=464MiB (487MB), run=60008-60008msec
+</span><span>  WRITE: bw=3427KiB/s (3510kB/s), 3427KiB/s-3427KiB/s (3510kB/s-3510kB/s), io=201MiB (211MB), run=60008-60008msec
+</span><span>
+</span><span>Disk stats (read/write):
+</span><span>  vda: ios=59908/26311, merge=0/18, ticks=33860/218043, in_queue=254055, util=97.19%
+</span></code></pre>
+<p>From the output, you can see:</p>
+<ul>
+<li><strong>IOPS</strong>: Input/Output Operations Per Second, indicating how many read/write operations are performed per second. IOPS: ~990 read, ~428 write = ~1,418 total IOPS</li>
+<li><strong>BW</strong>: Bandwidth, showing the amount of data read/written per second. BW: ~7920KiB/s read, ~3427KiB/s write = ~11,347KiB/s total</li>
+<li><strong>Latency</strong>: The time taken for an I/O operation to complete, with percentiles showing distribution. Latency: avg read ~574.46us, avg write ~8004.84us (reads are faster than writes, which is typical for many workloads)</li>
+<li><strong>CPU Usage</strong>: Indicates how much CPU time was spent on I/O operations. CPU: usr=0.15%, sys=0.53% (low CPU usage, indicating efficient I/O operations)</li>
+<li><strong>IO Depth</strong>: The number of I/O operations that can be in progress at once. IO depths: 1=100.0% (indicating single-threaded I/O, which is common for many database workloads, In PostgreSQL, each backend process (i.e., per connection) typically performs synchronous, blocking I/O — issuing one request at a time, waiting for completion, then issuing the next. So IO depths: 1=100.0% in fio does match the behavior of a single PostgreSQL connection, not because of max_connections = 1, but because each connection handles I/O in a single-threaded, synchronous fashion.</li>
+</ul>
+<h2 id="dd">dd&nbsp;<a class="anchor" href="#dd">&#xE732;</a></h2>
+<p>You can also use <code>dd</code> for a quick test, but it is not as accurate for database workloads:</p>
+<p>For writing:</p>
+<pre data-lang="bash" style="background-color:#2b303b;color:#c0c5ce;" class="language-bash "><code class="language-bash" data-lang="bash"><span style="color:#bf616a;">dd</span><span> if=/dev/zero of=testfile bs=1G count=1 oflag=direct status=progress
+</span></code></pre>
+<p>For reading:</p>
+<pre data-lang="bash" style="background-color:#2b303b;color:#c0c5ce;" class="language-bash "><code class="language-bash" data-lang="bash"><span style="color:#bf616a;">dd</span><span> if=testfile of=/dev/null bs=1G count=1 iflag=direct status=progress
+</span></code></pre>
+
+    
+        </div>
+
+    </article>
+</main>
+
+
+    <script type="text/javascript" src="https://dbre.xyz/elasticlunr.min.js" defer></script>
+    <script type="text/javascript" src="https://dbre.xyz/search_index.en.js" defer></script>
+<script type="text/javascript" src="https://dbre.xyz/js.js" defer></script>
+
+</body>
+</html>

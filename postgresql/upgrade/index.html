@@ -1,0 +1,387 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://dbre.xyz/main.css">
+    <link rel="icon" href="https://dbre.xyz/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <title> DBRE.xyz | Upgrade major version </title>
+</head>
+<body>
+
+<main>
+    
+    <nav>
+            <a href="https:&#x2F;&#x2F;dbre.xyz">
+                        <img src="https://dbre.xyz/logo.svg" alt="logo"/>
+                    </a>
+                <a href="javascript:void(0);" onclick="burger()" id="mobile" class="ms-Icon--GlobalNavButton"></a>
+            <div id="trees">
+                <input class="tree-toggle" type="checkbox" id="mariadb"
+                           />
+                    <label class="tree-toggle-label"
+                           for="mariadb">MariaDB</label>
+
+                    <ul class="subtree">
+                        <li >
+                                <a href="https://dbre.xyz/mariadb/logical-backup/">Logical backup</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/mariadb/physical-backup/">Physical backup</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/mariadb/lock-wait-timeout/">Lock Wait Timeout</a>
+                            </li>
+
+                            </ul>
+                <input class="tree-toggle" type="checkbox" id="postgresql"
+                           checked/>
+                    <label class="tree-toggle-label"
+                           for="postgresql">PostgreSQL</label>
+
+                    <ul class="subtree">
+                        <li >
+                                <a href="https://dbre.xyz/postgresql/pitr/">Point-In-Time Recovery</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/latency-connectivity/">Latency &amp; Connectivity</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/restore-point/">pg_create_restore_point</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/slow-queries/">slow queries</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/psqlrc/">.psqlrc</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/size/">database size</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/extensions/">Extensions</a>
+                            </li>
+
+                            <li class="active">
+                                <a href="https://dbre.xyz/postgresql/upgrade/">Upgrade major version</a>
+                            </li>
+
+                            
+                                    
+                                    
+                                        <ul id="toc">
+                                            <li><a href="
+                                                        https://dbre.xyz/postgresql/upgrade/#backup">backup</a>
+                                                    </li>
+                                            <li><a href="
+                                                        https://dbre.xyz/postgresql/upgrade/#initdb">initdb</a>
+                                                    </li>
+                                            <li><a href="
+                                                        https://dbre.xyz/postgresql/upgrade/#pg-hba-conf">pg_hba.conf</a>
+                                                    </li>
+                                            <li><a href="
+                                                        https://dbre.xyz/postgresql/upgrade/#upgrade-check">upgrade check</a>
+                                                    </li>
+                                            <li><a href="
+                                                        https://dbre.xyz/postgresql/upgrade/#upgrade">upgrade</a>
+                                                    </li>
+                                            <li><a href="
+                                                        https://dbre.xyz/postgresql/upgrade/#disable-old">disable old</a>
+                                                    </li>
+                                            <li><a href="
+                                                        https://dbre.xyz/postgresql/upgrade/#verify-pgdata">verify PGDATA</a>
+                                                    </li>
+                                            <li><a href="
+                                                        https://dbre.xyz/postgresql/upgrade/#start-new">start new</a>
+                                                    </li>
+                                            <li><a href="
+                                                        https://dbre.xyz/postgresql/upgrade/#patroni">Patroni</a>
+                                                    <ul>
+                                                            <li>
+                                                                    <a href="https://dbre.xyz/postgresql/upgrade/#etcd">etcd</a>
+                                                                </li>
+                                                            <li>
+                                                                    <a href="https://dbre.xyz/postgresql/upgrade/#patroni-yml">patroni.yml</a>
+                                                                </li>
+                                                            </ul>
+                                                    </li>
+                                            </ul>
+                                    </ul>
+                <input class="tree-toggle" type="checkbox" id="common"
+                           />
+                    <label class="tree-toggle-label"
+                           for="common">Common</label>
+
+                    <ul class="subtree">
+                        <li >
+                                <a href="https://dbre.xyz/common/io/">I&#x2F;O</a>
+                            </li>
+
+                            </ul>
+                </div>
+        </nav>
+    <article>
+
+        <div id="on_right">
+                <span id="search-ico" class="ms-Icon--Search"></span>
+            </div>
+            <div class="search-container">
+                <input id="search" type="search" placeholder="Search as you type...">
+                <div class="search-results">
+                    <div class="search-results__header"></div>
+                    <ul class="search-results__items"></ul>
+                </div>
+            </div>
+        <div id="wrap">
+            
+        <p>Before upgrading take a backup of your data</p>
+<h2 id="backup">backup&nbsp;<a class="anchor" href="#backup">&#xE732;</a></h2>
+<p>Create full backup:</p>
+<pre data-lang="sh" style="background-color:#2b303b;color:#c0c5ce;" class="language-sh "><code class="language-sh" data-lang="sh"><span style="color:#bf616a;">pgbackrest --stanza</span><span>=&lt;stanza_name&gt; --type=full backup
+</span></code></pre>
+<p>Install the postgres version you want to upgrade to, in this case, I am
+upgrading from <code>15</code> to <code>16</code>, the current <code>PGDATA</code> is <code>/db/15</code> and the new <code>PGDATA</code> will
+be <code>/db/16</code>.</p>
+<pre data-lang="sh" style="background-color:#2b303b;color:#c0c5ce;" class="language-sh "><code class="language-sh" data-lang="sh"><span style="color:#bf616a;">apt</span><span> install postgresql-16
+</span></code></pre>
+<h2 id="initdb">initdb&nbsp;<a class="anchor" href="#initdb">&#xE732;</a></h2>
+<p>Initialize the new postgres data directory:</p>
+<pre data-lang="sh" style="background-color:#2b303b;color:#c0c5ce;" class="language-sh "><code class="language-sh" data-lang="sh"><span style="color:#bf616a;">/usr/lib/postgresql/16/bin/pg_ctl</span><span> initdb</span><span style="color:#bf616a;"> -D</span><span> /db/16
+</span></code></pre>
+<h2 id="pg-hba-conf">pg_hba.conf&nbsp;<a class="anchor" href="#pg-hba-conf">&#xE732;</a></h2>
+<p>Update in both <code>/db/15/pg_hba.conf</code> and <code>/db/16/pg_hba.conf</code> to use <code>trust</code> instead of  <code>scram-sha-256</code> and comment al the <code>host</code> entries to temporally restrict remote connections:</p>
+<pre data-lang="conf" style="background-color:#2b303b;color:#c0c5ce;" class="language-conf "><code class="language-conf" data-lang="conf"><span style="color:#bf616a;">local   </span><span>all    all    trust
+</span><span style="color:#65737e;"># host    all    all    0.0.0.0/0    scram-sha-256
+</span></code></pre>
+<h2 id="upgrade-check">upgrade check&nbsp;<a class="anchor" href="#upgrade-check">&#xE732;</a></h2>
+<p>Check if the upgrade is possible:</p>
+<pre data-lang="sh" style="background-color:#2b303b;color:#c0c5ce;" class="language-sh "><code class="language-sh" data-lang="sh"><span style="color:#bf616a;">/usr/lib/postgresql/16/bin/pg_upgrade </span><span>\
+</span><span style="color:#bf616a;">    --old-datadir</span><span>=/db/15 \
+</span><span style="color:#bf616a;">    --new-datadir</span><span>=/db/16 \
+</span><span style="color:#bf616a;">    --old-bindir</span><span>=/usr/lib/postgresql/15/bin \
+</span><span style="color:#bf616a;">    --new-bindir</span><span>=/usr/lib/postgresql/16/bin \
+</span><span style="color:#bf616a;">    --link --check
+</span></code></pre>
+<blockquote>
+<p>You need to run this command as the <code>postgres</code> user</p>
+</blockquote>
+<p>The output can be something like:</p>
+<pre data-lang="txt" style="background-color:#2b303b;color:#c0c5ce;" class="language-txt "><code class="language-txt" data-lang="txt"><span>Performing Consistency Checks on Old Live Server
+</span><span>------------------------------------------------
+</span><span>Checking cluster versions                                     ok
+</span><span>Checking database user is the install user                    ok
+</span><span>Checking database connection settings                         ok
+</span><span>Checking for prepared transactions                            ok
+</span><span>Checking for system-defined composite types in user tables    ok
+</span><span>Checking for reg* data types in user tables                   ok
+</span><span>Checking for contrib/isn with bigint-passing mismatch         ok
+</span><span>Checking for incompatible &quot;aclitem&quot; data type in user tables  ok
+</span><span>Checking for presence of required libraries                   fatal
+</span><span>
+</span><span>Your installation references loadable libraries that are missing from the
+</span><span>new installation.  You can add these libraries to the new installation,
+</span><span>or remove the functions using them from the old installation.  A list of
+</span><span>problem libraries is in the file:
+</span><span>    /db/16/pg_upgrade_output.d/20250225T182200.708/loadable_libraries.txt
+</span><span>Failure, exiting
+</span></code></pre>
+<p>In this case, the upgrade is not possible because of missing libraries, you can
+check the <code>loadable_libraries.txt</code> file to see which libraries are missing, in
+this case the <code>postgis-3</code> library is missing:</p>
+<pre data-lang="txt" style="background-color:#2b303b;color:#c0c5ce;" class="language-txt "><code class="language-txt" data-lang="txt"><span>could not load library &quot;$libdir/postgis-3&quot;: ERROR:  could not access file &quot;$libdir/postgis-3&quot;: No such file or directory
+</span><span>In database: test_dev1
+</span><span>In database: restore_test_dev1
+</span></code></pre>
+<p>It can happen that you end in a loop because when installing the new libraries
+it will remove the old extensions in the <code>../15/lib</code>, for this you can copy the
+<code>/usr/lib/postgresql/15/lib</code> to <code>/usr/lib/postgresql/15/lib.old</code>:</p>
+<pre data-lang="sh" style="background-color:#2b303b;color:#c0c5ce;" class="language-sh "><code class="language-sh" data-lang="sh"><span style="color:#bf616a;">cp -r</span><span> /usr/lib/postgresql/15/lib /usr/lib/postgresql/15/lib.old
+</span></code></pre>
+<p>Do now the upgrade of the libraries for the new version, in this case, the
+<code>postgis-3</code> library and when finished move back the <code>lib.old</code>  to <code>lib</code>:</p>
+<pre data-lang="sh" style="background-color:#2b303b;color:#c0c5ce;" class="language-sh "><code class="language-sh" data-lang="sh"><span style="color:#bf616a;">mv</span><span> /usr/lib/postgresql/15/lib.old /usr/lib/postgresql/15/lib
+</span></code></pre>
+<p>This is because depending on the OS the libraries will remove the old extensions
+when installing the new ones, this can cause the <code>pg_upgrade</code> to fail.</p>
+<p>After you have installed the new libraries you can run the <code>pg_upgrade</code> command again:</p>
+<blockquote>
+<p>in RH based systems the libraries are in <code>/usr/pgsql-15/lib</code> and <code>/usr/pgsql-16/lib</code> respectively, and may need to run: <code>dnf upgrade --allowerasing *.rpm</code> and then <code>dnf install *.rpm</code> in the directory containing the new libraries.</p>
+</blockquote>
+<p>After fixing the missing libraries you can run the <code>pg_upgrade</code> command again
+and output should be like:</p>
+<pre data-lang="txt" style="background-color:#2b303b;color:#c0c5ce;" class="language-txt "><code class="language-txt" data-lang="txt"><span>Performing Consistency Checks on Old Live Server
+</span><span>------------------------------------------------
+</span><span>Checking cluster versions                                     ok
+</span><span>Checking database user is the install user                    ok
+</span><span>Checking database connection settings                         ok
+</span><span>Checking for prepared transactions                            ok
+</span><span>Checking for system-defined composite types in user tables    ok
+</span><span>Checking for reg* data types in user tables                   ok
+</span><span>Checking for contrib/isn with bigint-passing mismatch         ok
+</span><span>Checking for incompatible &quot;aclitem&quot; data type in user tables  ok
+</span><span>Checking for presence of required libraries                   ok
+</span><span>Checking database user is the install user                    ok
+</span><span>Checking for prepared transactions                            ok
+</span><span>Checking for new cluster tablespace directories               ok
+</span><span>
+</span><span>*Clusters are compatible*
+</span></code></pre>
+<h2 id="upgrade">upgrade&nbsp;<a class="anchor" href="#upgrade">&#xE732;</a></h2>
+<p>Run the upgrade:</p>
+<pre data-lang="sh" style="background-color:#2b303b;color:#c0c5ce;" class="language-sh "><code class="language-sh" data-lang="sh"><span style="color:#bf616a;">/usr/lib/postgresql/16/bin/pg_upgrade </span><span>\
+</span><span style="color:#bf616a;">    --old-datadir</span><span>=/db/15 \
+</span><span style="color:#bf616a;">    --new-datadir</span><span>=/db/16 \
+</span><span style="color:#bf616a;">    --old-bindir</span><span>=/usr/lib/postgresql/15/bin \
+</span><span style="color:#bf616a;">    --new-bindir</span><span>=/usr/lib/postgresql/16/bin \
+</span><span style="color:#bf616a;">    --old-options</span><span>=&quot;</span><span style="color:#a3be8c;">-c config_file=/db/15/postgresql.conf</span><span>&quot; \
+</span><span style="color:#bf616a;">    --new-options</span><span>=&quot;</span><span style="color:#a3be8c;">-c config_file=/db/16/postgresql.conf</span><span>&quot;\
+</span><span style="color:#bf616a;">    --link
+</span></code></pre>
+<blockquote>
+<p>you need to stop the old postgres server before running this command <code>systemctl stop postgresql-15</code></p>
+</blockquote>
+<p>The output should be like:</p>
+<pre data-lang="txt" style="background-color:#2b303b;color:#c0c5ce;" class="language-txt "><code class="language-txt" data-lang="txt"><span>Performing Consistency Checks
+</span><span>-----------------------------
+</span><span>Checking cluster versions                                     ok
+</span><span>Checking database user is the install user                    ok
+</span><span>Checking database connection settings                         ok
+</span><span>Checking for prepared transactions                            ok
+</span><span>Checking for system-defined composite types in user tables    ok
+</span><span>Checking for reg* data types in user tables                   ok
+</span><span>Checking for contrib/isn with bigint-passing mismatch         ok
+</span><span>Checking for incompatible &quot;aclitem&quot; data type in user tables  ok
+</span><span>Creating dump of global objects                               ok
+</span><span>Creating dump of database schemas
+</span><span>                                                              ok
+</span><span>Checking for presence of required libraries                   ok
+</span><span>Checking database user is the install user                    ok
+</span><span>Checking for prepared transactions                            ok
+</span><span>Checking for new cluster tablespace directories               ok
+</span><span>
+</span><span>If pg_upgrade fails after this point, you must re-initdb the
+</span><span>new cluster before continuing.
+</span><span>
+</span><span>Performing Upgrade
+</span><span>------------------
+</span><span>Setting locale and encoding for new cluster                   ok
+</span><span>Analyzing all rows in the new cluster                         ok
+</span><span>Freezing all rows in the new cluster                          ok
+</span><span>Deleting files from new pg_xact                               ok
+</span><span>Copying old pg_xact to new server                             ok
+</span><span>Setting oldest XID for new cluster                            ok
+</span><span>Setting next transaction ID and epoch for new cluster         ok
+</span><span>Deleting files from new pg_multixact/offsets                  ok
+</span><span>Copying old pg_multixact/offsets to new server                ok
+</span><span>Deleting files from new pg_multixact/members                  ok
+</span><span>Copying old pg_multixact/members to new server                ok
+</span><span>Setting next multixact ID and offset for new cluster          ok
+</span><span>Resetting WAL archives                                        ok
+</span><span>Setting frozenxid and minmxid counters in new cluster         ok
+</span><span>Restoring global objects in the new cluster                   ok
+</span><span>Restoring database schemas in the new cluster
+</span><span>                                                              ok
+</span><span>Adding &quot;.old&quot; suffix to old global/pg_control                 ok
+</span><span>
+</span><span>If you want to start the old cluster, you will need to remove
+</span><span>the &quot;.old&quot; suffix from /db/15/global/pg_control.old.
+</span><span>Because &quot;link&quot; mode was used, the old cluster cannot be safely
+</span><span>started once the new cluster has been started.
+</span><span>Linking user relation files
+</span><span>                                                              ok
+</span><span>Setting next OID for new cluster                              ok
+</span><span>Sync data directory to disk                                   ok
+</span><span>Creating script to delete old cluster                         ok
+</span><span>Checking for extension updates                                notice
+</span><span>
+</span><span>Your installation contains extensions that should be updated
+</span><span>with the ALTER EXTENSION command.  The file
+</span><span>    update_extensions.sql
+</span><span>when executed by psql by the database superuser will update
+</span><span>these extensions.
+</span><span>
+</span><span>Upgrade Complete
+</span><span>----------------
+</span><span>Optimizer statistics are not transferred by pg_upgrade.
+</span><span>Once you start the new server, consider running:
+</span><span>    /usr/lib/postgresql/16/bin/vacuumdb --all --analyze-in-stages
+</span><span>Running this script will delete the old cluster&#39;s data files:
+</span><span>    ./delete_old_cluster.sh
+</span><span>timed out waiting for input: auto-logout
+</span></code></pre>
+<h2 id="disable-old">disable old&nbsp;<a class="anchor" href="#disable-old">&#xE732;</a></h2>
+<p>Disable the old postgres version:</p>
+<pre data-lang="sh" style="background-color:#2b303b;color:#c0c5ce;" class="language-sh "><code class="language-sh" data-lang="sh"><span style="color:#bf616a;">systemctl</span><span> disable postgresql-15.service
+</span></code></pre>
+<h2 id="verify-pgdata">verify PGDATA&nbsp;<a class="anchor" href="#verify-pgdata">&#xE732;</a></h2>
+<p>Verify the new <code>PGDATA</code> is correct, check with:</p>
+<pre data-lang="sh" style="background-color:#2b303b;color:#c0c5ce;" class="language-sh "><code class="language-sh" data-lang="sh"><span style="color:#bf616a;">systemctl</span><span> cat postgresql-16.service
+</span></code></pre>
+<p>Ensure the <code>Environment</code> variable is set to the new <code>PGDATA</code>:</p>
+<pre data-lang="txt" style="background-color:#2b303b;color:#c0c5ce;" class="language-txt "><code class="language-txt" data-lang="txt"><span>Environment=PGDATA=/db/16
+</span></code></pre>
+<h2 id="start-new">start new&nbsp;<a class="anchor" href="#start-new">&#xE732;</a></h2>
+<p>Start the new postgres version:</p>
+<pre data-lang="sh" style="background-color:#2b303b;color:#c0c5ce;" class="language-sh "><code class="language-sh" data-lang="sh"><span style="color:#bf616a;">systemctl</span><span> start postgresql-16.service
+</span></code></pre>
+<p>Run the <code>vacuumdb</code> command to update the optimizer statistics:</p>
+<pre data-lang="sh" style="background-color:#2b303b;color:#c0c5ce;" class="language-sh "><code class="language-sh" data-lang="sh"><span style="color:#bf616a;">/usr/lib/postgresql/16/bin/vacuumdb --all --analyze-in-stages
+</span></code></pre>
+<h1 id="patroni">Patroni&nbsp;<a class="anchor" href="#patroni">&#xE732;</a></h1>
+<p>If you are using <code>Patroni</code> the procedure is the same, once you have all your
+extension installed, stop all nodes and work only in the primary node, you need to initialize the new data directory:</p>
+<pre data-lang="sh" style="background-color:#2b303b;color:#c0c5ce;" class="language-sh "><code class="language-sh" data-lang="sh"><span style="color:#bf616a;">/usr/lib/postgresql/16/bin/pg_ctl</span><span> initdb</span><span style="color:#bf616a;"> -D</span><span> /db/16</span><span style="color:#bf616a;"> -o --wal-segsize</span><span>=16</span><span style="color:#bf616a;"> -o --data-checksums
+</span></code></pre>
+<p>To get the current wal-segsize you can run:</p>
+<pre data-lang="sh" style="background-color:#2b303b;color:#c0c5ce;" class="language-sh "><code class="language-sh" data-lang="sh"><span style="color:#bf616a;">ls -l</span><span> /db/15/pg_wal
+</span><span style="color:#bf616a;">-rw-r-----</span><span> 1 postgres postgres 2.8K Feb 25 17:24 0000003F.history
+</span><span style="color:#bf616a;">-rw-r-----</span><span> 1 postgres postgres 2.8K Feb 25 17:24 00000040.history
+</span><span style="color:#bf616a;">-rw-r-----</span><span> 1 postgres postgres 2.8K Feb 26 09:00 00000041.history
+</span><span style="color:#bf616a;">-rw-r-----</span><span> 1 postgres postgres 2.9K Mar  2 07:52 00000042.history
+</span><span style="color:#bf616a;">-rw-r-----</span><span> 1 postgres postgres  16M Mar  5 10:22 000000430000019700000055
+</span><span style="color:#bf616a;">-rw-r-----</span><span> 1 postgres postgres  16M Mar  5 10:27 000000430000019700000056
+</span><span style="color:#bf616a;">-rw-r-----</span><span> 1 postgres postgres  16M Mar  5 10:32 000000430000019700000057
+</span><span style="color:#bf616a;">-rw-r-----</span><span> 1 postgres postgres  16M Mar  5 10:37 000000430000019700000058
+</span></code></pre>
+<p>In this case the <code>wal-segsize</code> is <code>16M</code>.</p>
+<h2 id="etcd">etcd&nbsp;<a class="anchor" href="#etcd">&#xE732;</a></h2>
+<p>Delete the data from etcd or remove the cluster, this is because after the
+upgrade the system id may change:</p>
+<pre data-lang="sh" style="background-color:#2b303b;color:#c0c5ce;" class="language-sh "><code class="language-sh" data-lang="sh"><span style="color:#bf616a;">patronictl</span><span> remove &lt;cluster_name&gt;
+</span></code></pre>
+<blockquote>
+<p>you could get this error: <code>CRITICAL: system ID mismatch, node &lt;node-name&gt; belongs to a different cluster</code></p>
+</blockquote>
+<h2 id="patroni-yml">patroni.yml&nbsp;<a class="anchor" href="#patroni-yml">&#xE732;</a></h2>
+<p>After the upgrade, update <code>patroni.yml</code> and set the new <code>PGDATA</code> and bin_dir, also in the create_replica_methods, put first <code>basebackup</code> for example:</p>
+<pre data-lang="yaml" style="background-color:#2b303b;color:#c0c5ce;" class="language-yaml "><code class="language-yaml" data-lang="yaml"><span style="color:#bf616a;">dcs</span><span>:
+</span><span>    </span><span style="color:#bf616a;">postgresql</span><span>:
+</span><span>        </span><span style="color:#bf616a;">create_replica_methods</span><span>:
+</span><span>            - </span><span style="color:#a3be8c;">basebackup
+</span><span>
+</span><span style="color:#bf616a;">postgresql</span><span>:
+</span><span>    </span><span style="color:#bf616a;">bin_dir</span><span>: </span><span style="color:#a3be8c;">/usr/lib/postgresql/16/bin
+</span><span>    </span><span style="color:#bf616a;">data_dir</span><span>: </span><span style="color:#a3be8c;">/db/16
+</span></code></pre>
+
+    
+        </div>
+
+    </article>
+</main>
+
+
+    <script type="text/javascript" src="https://dbre.xyz/elasticlunr.min.js" defer></script>
+    <script type="text/javascript" src="https://dbre.xyz/search_index.en.js" defer></script>
+<script type="text/javascript" src="https://dbre.xyz/js.js" defer></script>
+
+</body>
+</html>

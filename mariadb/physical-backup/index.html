@@ -1,0 +1,176 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://dbre.xyz/main.css">
+    <link rel="icon" href="https://dbre.xyz/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <title> DBRE.xyz | Physical backup </title>
+</head>
+<body>
+
+<main>
+    
+    <nav>
+            <a href="https:&#x2F;&#x2F;dbre.xyz">
+                        <img src="https://dbre.xyz/logo.svg" alt="logo"/>
+                    </a>
+                <a href="javascript:void(0);" onclick="burger()" id="mobile" class="ms-Icon--GlobalNavButton"></a>
+            <div id="trees">
+                <input class="tree-toggle" type="checkbox" id="mariadb"
+                           checked/>
+                    <label class="tree-toggle-label"
+                           for="mariadb">MariaDB</label>
+
+                    <ul class="subtree">
+                        <li >
+                                <a href="https://dbre.xyz/mariadb/logical-backup/">Logical backup</a>
+                            </li>
+
+                            <li class="active">
+                                <a href="https://dbre.xyz/mariadb/physical-backup/">Physical backup</a>
+                            </li>
+
+                            
+                                    
+                                    
+                                        <ul id="toc">
+                                            <li><a href="
+                                                        https://dbre.xyz/mariadb/physical-backup/#backup-dir">backup dir</a>
+                                                    </li>
+                                            <li><a href="
+                                                        https://dbre.xyz/mariadb/physical-backup/#take-the-backup">Take the backup:</a>
+                                                    </li>
+                                            <li><a href="
+                                                        https://dbre.xyz/mariadb/physical-backup/#prepare">prepare</a>
+                                                    </li>
+                                            <li><a href="
+                                                        https://dbre.xyz/mariadb/physical-backup/#compress">compress</a>
+                                                    <ul>
+                                                            <li>
+                                                                    <a href="https://dbre.xyz/mariadb/physical-backup/#s3">S3</a>
+                                                                </li>
+                                                            </ul>
+                                                    </li>
+                                            <li><a href="
+                                                        https://dbre.xyz/mariadb/physical-backup/#script">script</a>
+                                                    </li>
+                                            </ul>
+                                    <li >
+                                <a href="https://dbre.xyz/mariadb/lock-wait-timeout/">Lock Wait Timeout</a>
+                            </li>
+
+                            </ul>
+                <input class="tree-toggle" type="checkbox" id="postgresql"
+                           />
+                    <label class="tree-toggle-label"
+                           for="postgresql">PostgreSQL</label>
+
+                    <ul class="subtree">
+                        <li >
+                                <a href="https://dbre.xyz/postgresql/pitr/">Point-In-Time Recovery</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/latency-connectivity/">Latency &amp; Connectivity</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/restore-point/">pg_create_restore_point</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/slow-queries/">slow queries</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/psqlrc/">.psqlrc</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/size/">database size</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/extensions/">Extensions</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/upgrade/">Upgrade major version</a>
+                            </li>
+
+                            </ul>
+                <input class="tree-toggle" type="checkbox" id="common"
+                           />
+                    <label class="tree-toggle-label"
+                           for="common">Common</label>
+
+                    <ul class="subtree">
+                        <li >
+                                <a href="https://dbre.xyz/common/io/">I&#x2F;O</a>
+                            </li>
+
+                            </ul>
+                </div>
+        </nav>
+    <article>
+
+        <div id="on_right">
+                <span id="search-ico" class="ms-Icon--Search"></span>
+            </div>
+            <div class="search-container">
+                <input id="search" type="search" placeholder="Search as you type...">
+                <div class="search-results">
+                    <div class="search-results__header"></div>
+                    <ul class="search-results__items"></ul>
+                </div>
+            </div>
+        <div id="wrap">
+            
+        <h2 id="backup-dir">backup dir&nbsp;<a class="anchor" href="#backup-dir">&#xE732;</a></h2>
+<p>Define a backup dir:</p>
+<pre data-lang="sh" style="background-color:#2b303b;color:#c0c5ce;" class="language-sh "><code class="language-sh" data-lang="sh"><span style="color:#bf616a;">BACKUP_DIR</span><span>=&quot;</span><span style="color:#a3be8c;">/opt/backup/backup-</span><span>$</span><span style="color:#a3be8c;">(</span><span style="color:#bf616a;">date</span><span style="color:#a3be8c;"> +</span><span>%</span><span style="color:#bf616a;">Y</span><span style="color:#a3be8c;">-</span><span>%</span><span style="color:#bf616a;">m</span><span style="color:#a3be8c;">-</span><span>%</span><span style="color:#bf616a;">d_</span><span>%</span><span style="color:#bf616a;">H</span><span style="color:#a3be8c;">-</span><span>%</span><span style="color:#bf616a;">M</span><span style="color:#a3be8c;">)</span><span>&quot;
+</span></code></pre>
+<h2 id="take-the-backup">Take the backup:&nbsp;<a class="anchor" href="#take-the-backup">&#xE732;</a></h2>
+<pre data-lang="sh" style="background-color:#2b303b;color:#c0c5ce;" class="language-sh "><code class="language-sh" data-lang="sh"><span style="color:#bf616a;">mariadb-backup --backup --parallel</span><span>=2</span><span style="color:#bf616a;"> --safe-slave-backup --target-dir</span><span>=&quot;$</span><span style="color:#bf616a;">BACKUP_DIR</span><span>&quot;
+</span></code></pre>
+<blockquote>
+<p>Note: <code>--parallel=2</code> is optional, it can be adjusted based on your system's capabilities.</p>
+</blockquote>
+<h2 id="prepare">prepare&nbsp;<a class="anchor" href="#prepare">&#xE732;</a></h2>
+<pre data-lang="sh" style="background-color:#2b303b;color:#c0c5ce;" class="language-sh "><code class="language-sh" data-lang="sh"><span style="color:#bf616a;">mariadb-backup --prepare --target-dir</span><span>=&quot;$</span><span style="color:#bf616a;">BACKUP_DIR</span><span>&quot;
+</span></code></pre>
+<blockquote>
+<p>Warning: Advised to run this, as it will ensure that the backup works and can be restored without any problems.</p>
+</blockquote>
+<h2 id="compress">compress&nbsp;<a class="anchor" href="#compress">&#xE732;</a></h2>
+<pre data-lang="sh" style="background-color:#2b303b;color:#c0c5ce;" class="language-sh "><code class="language-sh" data-lang="sh"><span style="color:#bf616a;">tar -cf</span><span> -&quot;$</span><span style="color:#a3be8c;">{</span><span style="color:#bf616a;">BACKUP_DIR</span><span>##*</span><span style="color:#a3be8c;">/}</span><span>&quot; | </span><span style="color:#bf616a;">zstd </span><span>&gt; &quot;$</span><span style="color:#bf616a;">BACKUP_DIR</span><span style="color:#a3be8c;">.tar.zst</span><span>&quot;
+</span></code></pre>
+<h3 id="s3">S3&nbsp;<a class="anchor" href="#s3">&#xE732;</a></h3>
+<p>If you want to upload the backup compressed to S3, you can use the following command:</p>
+<pre data-lang="sh" style="background-color:#2b303b;color:#c0c5ce;" class="language-sh "><code class="language-sh" data-lang="sh"><span style="color:#bf616a;">tar -cf</span><span> -&quot;$</span><span style="color:#a3be8c;">{</span><span style="color:#bf616a;">BACKUP_DIR</span><span>##*</span><span style="color:#a3be8c;">/}</span><span>&quot; | </span><span style="color:#bf616a;">s3m --pipe -x </span><span>&lt;s3 provider&gt;/&lt;bucket&gt;/backup.tar
+</span></code></pre>
+<blockquote>
+<p>Note: Replace <code>&lt;s3 provider&gt;</code> and <code>&lt;bucket&gt;</code> with your actual S3 provider and bucket name, check the <a href="https://s3m.stream/stream.html#x-compression">s3m documentation</a> for more details.</p>
+</blockquote>
+<h2 id="script">script&nbsp;<a class="anchor" href="#script">&#xE732;</a></h2>
+<p>All together the script looks like this:</p>
+<pre data-lang="sh" style="background-color:#2b303b;color:#c0c5ce;" class="language-sh "><code class="language-sh" data-lang="sh"><span style="color:#bf616a;">BACKUP_DIR</span><span>=&quot;</span><span style="color:#a3be8c;">/opt/backup/backup-</span><span>$</span><span style="color:#a3be8c;">(</span><span style="color:#bf616a;">date</span><span style="color:#a3be8c;"> +</span><span>%</span><span style="color:#bf616a;">Y</span><span style="color:#a3be8c;">-</span><span>%</span><span style="color:#bf616a;">m</span><span style="color:#a3be8c;">-</span><span>%</span><span style="color:#bf616a;">d_</span><span>%</span><span style="color:#bf616a;">H</span><span style="color:#a3be8c;">-</span><span>%</span><span style="color:#bf616a;">M</span><span style="color:#a3be8c;">)</span><span>&quot;
+</span><span style="color:#bf616a;">mariadb-backup --backup --parallel</span><span>=2</span><span style="color:#bf616a;"> --safe-slave-backup --target-dir</span><span>=&quot;$</span><span style="color:#bf616a;">BACKUP_DIR</span><span>&quot;
+</span><span style="color:#bf616a;">mariadb-backup --prepare --target-dir</span><span>=&quot;$</span><span style="color:#bf616a;">BACKUP_DIR</span><span>&quot;
+</span><span style="color:#bf616a;">tar -cf</span><span> -&quot;$</span><span style="color:#a3be8c;">{</span><span style="color:#bf616a;">BACKUP_DIR</span><span>##*</span><span style="color:#a3be8c;">/}</span><span>&quot; | </span><span style="color:#bf616a;">zstd </span><span>&gt; &quot;$</span><span style="color:#bf616a;">BACKUP_DIR</span><span style="color:#a3be8c;">.tar.zst</span><span>&quot;
+</span></code></pre>
+
+    
+        </div>
+
+    </article>
+</main>
+
+
+    <script type="text/javascript" src="https://dbre.xyz/elasticlunr.min.js" defer></script>
+    <script type="text/javascript" src="https://dbre.xyz/search_index.en.js" defer></script>
+<script type="text/javascript" src="https://dbre.xyz/js.js" defer></script>
+
+</body>
+</html>

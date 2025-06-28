@@ -1,0 +1,155 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://dbre.xyz/main.css">
+    <link rel="icon" href="https://dbre.xyz/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <title>DBRE.xyz</title>
+</head>
+<body>
+
+<main>
+    
+    <nav>
+            <a href="https:&#x2F;&#x2F;dbre.xyz">
+                        <img src="https://dbre.xyz/logo.svg" alt="logo"/>
+                    </a>
+                <a href="javascript:void(0);" onclick="burger()" id="mobile" class="ms-Icon--GlobalNavButton"></a>
+            <div id="trees">
+                <input class="tree-toggle" type="checkbox" id="mariadb"
+                           />
+                    <label class="tree-toggle-label"
+                           for="mariadb">MariaDB</label>
+
+                    <ul class="subtree">
+                        <li >
+                                <a href="https://dbre.xyz/mariadb/logical-backup/">Logical backup</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/mariadb/physical-backup/">Physical backup</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/mariadb/lock-wait-timeout/">Lock Wait Timeout</a>
+                            </li>
+
+                            </ul>
+                <input class="tree-toggle" type="checkbox" id="postgresql"
+                           />
+                    <label class="tree-toggle-label"
+                           for="postgresql">PostgreSQL</label>
+
+                    <ul class="subtree">
+                        <li >
+                                <a href="https://dbre.xyz/postgresql/pitr/">Point-In-Time Recovery</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/latency-connectivity/">Latency &amp; Connectivity</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/restore-point/">pg_create_restore_point</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/slow-queries/">slow queries</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/psqlrc/">.psqlrc</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/size/">database size</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/extensions/">Extensions</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/upgrade/">Upgrade major version</a>
+                            </li>
+
+                            </ul>
+                <input class="tree-toggle" type="checkbox" id="common"
+                           />
+                    <label class="tree-toggle-label"
+                           for="common">Common</label>
+
+                    <ul class="subtree">
+                        <li >
+                                <a href="https://dbre.xyz/common/io/">I&#x2F;O</a>
+                            </li>
+
+                            </ul>
+                </div>
+        </nav>
+    <article>
+
+        <div id="on_right">
+                <span id="search-ico" class="ms-Icon--Search"></span>
+            </div>
+            <div class="search-container">
+                <input id="search" type="search" placeholder="Search as you type...">
+                <div class="search-results">
+                    <div class="search-results__header"></div>
+                    <ul class="search-results__items"></ul>
+                </div>
+            </div>
+        <div id="wrap">
+            <h2 id="welcome-to-dbre-xyz-seedling">Welcome to DBRE.xyz 🌱&nbsp;<a class="anchor" href="#welcome-to-dbre-xyz-seedling">&#xE732;</a></h2>
+<p>Welcome to DBRE.xyz, your dedicated hub for all things Database Reliability
+Engineering (DBRE). Whether you're an experienced DBA, a DevOps professional,
+or simply interested in the world of databases, you've found the perfect place
+to expand your knowledge and skills.</p>
+<h2 id="what-is-dbre">What is DBRE?&nbsp;<a class="anchor" href="#what-is-dbre">&#xE732;</a></h2>
+<p>Database Reliability Engineering (DBRE) combines the best practices of database
+management and Site Reliability Engineering (SRE) to ensure databases are
+efficient, reliable, and scalable. It encompasses performance optimization,
+automation, monitoring, and proactive maintenance to prevent issues before they
+occur.</p>
+<p>At DBRE.xyz, we explore topics such as:</p>
+<ul>
+<li>Advanced techniques for optimizing database performance.</li>
+<li>Effective strategies for monitoring and alerting in database systems.</li>
+<li>Automation tools and scripts for managing routine database tasks.</li>
+<li>Case studies on scaling databases to handle large volumes of data.</li>
+<li>Best practices for ensuring database security and disaster recovery.</li>
+<li>Comprehensive approaches to database backups and restoration.</li>
+</ul>
+<p>And many more aspects of ensuring reliable and scalable databases.</p>
+<h2 id="join">Join!&nbsp;<a class="anchor" href="#join">&#xE732;</a></h2>
+<p>We believe that fostering innovation and knowledge-sharing starts with
+community engagement. We invite database enthusiasts from all backgrounds to
+contribute. Whether you have an insightful article, a unique solution to a
+common problem, or a case study from your own experiences, your contributions
+are invaluable.</p>
+<h3 id="how-you-can-contribute">How You Can Contribute&nbsp;<a class="anchor" href="#how-you-can-contribute">&#xE732;</a></h3>
+<ul>
+<li><strong>Write an Article:</strong> Share your expertise on any DBRE-related topic.</li>
+<li><strong>Share a Case Study:</strong> Provide real-world examples of challenges and
+solutions in database reliability.</li>
+<li><strong>Submit Tutorials:</strong> Offer step-by-step guides on DBRE tools and practices.</li>
+</ul>
+<p>Create a pull request on our GitHub repository to submit your content <a href="https://github.com/nbari/dbre/tree/main/content">here ✏️</a></p>
+<p>Together, let's build a comprehensive resource that helps everyone enhance
+their database reliability and performance.</p>
+<p>Join us, share your insights, and help us create a thriving community at
+DBRE.xyz 🌱.</p>
+
+        </div>
+
+    </article>
+</main>
+
+
+    <script type="text/javascript" src="https://dbre.xyz/elasticlunr.min.js" defer></script>
+    <script type="text/javascript" src="https://dbre.xyz/search_index.en.js" defer></script>
+<script type="text/javascript" src="https://dbre.xyz/js.js" defer></script>
+
+</body>
+</html>
