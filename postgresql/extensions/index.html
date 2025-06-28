@@ -1,0 +1,132 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://dbre.xyz/main.css">
+    <link rel="icon" href="https://dbre.xyz/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <title> DBRE.xyz | Extensions </title>
+</head>
+<body>
+
+<main>
+    
+    <nav>
+            <a href="https:&#x2F;&#x2F;dbre.xyz">
+                        <img src="https://dbre.xyz/logo.svg" alt="logo"/>
+                    </a>
+                <a href="javascript:void(0);" onclick="burger()" id="mobile" class="ms-Icon--GlobalNavButton"></a>
+            <div id="trees">
+                <input class="tree-toggle" type="checkbox" id="mariadb"
+                           />
+                    <label class="tree-toggle-label"
+                           for="mariadb">MariaDB</label>
+
+                    <ul class="subtree">
+                        <li >
+                                <a href="https://dbre.xyz/mariadb/logical-backup/">Logical backup</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/mariadb/physical-backup/">Physical backup</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/mariadb/lock-wait-timeout/">Lock Wait Timeout</a>
+                            </li>
+
+                            </ul>
+                <input class="tree-toggle" type="checkbox" id="postgresql"
+                           checked/>
+                    <label class="tree-toggle-label"
+                           for="postgresql">PostgreSQL</label>
+
+                    <ul class="subtree">
+                        <li >
+                                <a href="https://dbre.xyz/postgresql/pitr/">Point-In-Time Recovery</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/latency-connectivity/">Latency &amp; Connectivity</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/restore-point/">pg_create_restore_point</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/slow-queries/">slow queries</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/psqlrc/">.psqlrc</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/size/">database size</a>
+                            </li>
+
+                            <li class="active">
+                                <a href="https://dbre.xyz/postgresql/extensions/">Extensions</a>
+                            </li>
+
+                            
+                                    
+                                    
+                                        <li >
+                                <a href="https://dbre.xyz/postgresql/upgrade/">Upgrade major version</a>
+                            </li>
+
+                            </ul>
+                <input class="tree-toggle" type="checkbox" id="common"
+                           />
+                    <label class="tree-toggle-label"
+                           for="common">Common</label>
+
+                    <ul class="subtree">
+                        <li >
+                                <a href="https://dbre.xyz/common/io/">I&#x2F;O</a>
+                            </li>
+
+                            </ul>
+                </div>
+        </nav>
+    <article>
+
+        <div id="on_right">
+                <span id="search-ico" class="ms-Icon--Search"></span>
+            </div>
+            <div class="search-container">
+                <input id="search" type="search" placeholder="Search as you type...">
+                <div class="search-results">
+                    <div class="search-results__header"></div>
+                    <ul class="search-results__items"></ul>
+                </div>
+            </div>
+        <div id="wrap">
+            
+        <h2 id="available-extensions">Available extensions&nbsp;<a class="anchor" href="#available-extensions">&#xE732;</a></h2>
+<p>To get a list of all available extensions, run the following command:</p>
+<pre data-lang="sql" style="background-color:#2b303b;color:#c0c5ce;" class="language-sql "><code class="language-sql" data-lang="sql"><span style="color:#b48ead;">SELECT </span><span style="color:#bf616a;">* </span><span style="color:#b48ead;">FROM</span><span> pg_available_extensions </span><span style="color:#b48ead;">ORDER BY</span><span> name;
+</span></code></pre>
+<h2 id="installed-extensions">Installed extensions&nbsp;<a class="anchor" href="#installed-extensions">&#xE732;</a></h2>
+<p>You can list all installed extensions by running the following command:</p>
+<pre data-lang="sql" style="background-color:#2b303b;color:#c0c5ce;" class="language-sql "><code class="language-sql" data-lang="sql"><span>\dx
+</span></code></pre>
+<p>Or using the following SQL query:</p>
+<pre data-lang="sql" style="background-color:#2b303b;color:#c0c5ce;" class="language-sql "><code class="language-sql" data-lang="sql"><span style="color:#b48ead;">SELECT </span><span style="color:#bf616a;">* </span><span style="color:#b48ead;">FROM</span><span> pg_extension;
+</span></code></pre>
+
+    
+        </div>
+
+    </article>
+</main>
+
+
+    <script type="text/javascript" src="https://dbre.xyz/elasticlunr.min.js" defer></script>
+    <script type="text/javascript" src="https://dbre.xyz/search_index.en.js" defer></script>
+<script type="text/javascript" src="https://dbre.xyz/js.js" defer></script>
+
+</body>
+</html>

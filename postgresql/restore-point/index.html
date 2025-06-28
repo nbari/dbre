@@ -1,0 +1,177 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://dbre.xyz/main.css">
+    <link rel="icon" href="https://dbre.xyz/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <title> DBRE.xyz | pg_create_restore_point </title>
+</head>
+<body>
+
+<main>
+    
+    <nav>
+            <a href="https:&#x2F;&#x2F;dbre.xyz">
+                        <img src="https://dbre.xyz/logo.svg" alt="logo"/>
+                    </a>
+                <a href="javascript:void(0);" onclick="burger()" id="mobile" class="ms-Icon--GlobalNavButton"></a>
+            <div id="trees">
+                <input class="tree-toggle" type="checkbox" id="mariadb"
+                           />
+                    <label class="tree-toggle-label"
+                           for="mariadb">MariaDB</label>
+
+                    <ul class="subtree">
+                        <li >
+                                <a href="https://dbre.xyz/mariadb/logical-backup/">Logical backup</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/mariadb/physical-backup/">Physical backup</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/mariadb/lock-wait-timeout/">Lock Wait Timeout</a>
+                            </li>
+
+                            </ul>
+                <input class="tree-toggle" type="checkbox" id="postgresql"
+                           checked/>
+                    <label class="tree-toggle-label"
+                           for="postgresql">PostgreSQL</label>
+
+                    <ul class="subtree">
+                        <li >
+                                <a href="https://dbre.xyz/postgresql/pitr/">Point-In-Time Recovery</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/latency-connectivity/">Latency &amp; Connectivity</a>
+                            </li>
+
+                            <li class="active">
+                                <a href="https://dbre.xyz/postgresql/restore-point/">pg_create_restore_point</a>
+                            </li>
+
+                            
+                                    
+                                    
+                                        <ul id="toc">
+                                            <li><a href="
+                                                        https://dbre.xyz/postgresql/restore-point/#create">Create</a>
+                                                    </li>
+                                            <li><a href="
+                                                        https://dbre.xyz/postgresql/restore-point/#stop">Stop</a>
+                                                    </li>
+                                            <li><a href="
+                                                        https://dbre.xyz/postgresql/restore-point/#restore">Restore</a>
+                                                    </li>
+                                            <li><a href="
+                                                        https://dbre.xyz/postgresql/restore-point/#recovery-target-name">recovery_target_name</a>
+                                                    </li>
+                                            <li><a href="
+                                                        https://dbre.xyz/postgresql/restore-point/#start">Start</a>
+                                                    </li>
+                                            <li><a href="
+                                                        https://dbre.xyz/postgresql/restore-point/#promote">promote</a>
+                                                    </li>
+                                            </ul>
+                                    <li >
+                                <a href="https://dbre.xyz/postgresql/slow-queries/">slow queries</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/psqlrc/">.psqlrc</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/size/">database size</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/extensions/">Extensions</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/upgrade/">Upgrade major version</a>
+                            </li>
+
+                            </ul>
+                <input class="tree-toggle" type="checkbox" id="common"
+                           />
+                    <label class="tree-toggle-label"
+                           for="common">Common</label>
+
+                    <ul class="subtree">
+                        <li >
+                                <a href="https://dbre.xyz/common/io/">I&#x2F;O</a>
+                            </li>
+
+                            </ul>
+                </div>
+        </nav>
+    <article>
+
+        <div id="on_right">
+                <span id="search-ico" class="ms-Icon--Search"></span>
+            </div>
+            <div class="search-container">
+                <input id="search" type="search" placeholder="Search as you type...">
+                <div class="search-results">
+                    <div class="search-results__header"></div>
+                    <ul class="search-results__items"></ul>
+                </div>
+            </div>
+        <div id="wrap">
+            
+        <p>In PostgreSQL, ensuring data integrity and ease of recovery during maintenance
+or deployment activities is crucial. One effective way to safeguard your
+database is by using the <code>pg_create_restore_point</code> function. This function
+creates a named, durable restore point which can be used to recover the
+database to a specific state using Point-in-Time Recovery (PITR). Here's a
+brief introduction on how to utilize <code>pg_create_restore_point</code> before performing
+maintenance or deploying changes.</p>
+<h2 id="create">Create&nbsp;<a class="anchor" href="#create">&#xE732;</a></h2>
+<p>Create a restore point named <code>RP1</code>:</p>
+<pre data-lang="sql" style="background-color:#2b303b;color:#c0c5ce;" class="language-sql "><code class="language-sql" data-lang="sql"><span style="color:#b48ead;">SELECT</span><span> pg_create_restore_point(&#39;</span><span style="color:#a3be8c;">RP1</span><span>&#39;);
+</span></code></pre>
+<p>Get the Log Sequence Number (LSN) and the current timestamp, and save them as a
+reference:</p>
+<pre data-lang="sql" style="background-color:#2b303b;color:#c0c5ce;" class="language-sql "><code class="language-sql" data-lang="sql"><span style="color:#b48ead;">SELECT</span><span> pg_current_wal_lsn(), </span><span style="color:#96b5b4;">current_timestamp</span><span>;
+</span></code></pre>
+<p>After doing this, you can restore that that point <code>RP1</code> by following next steps:</p>
+<h2 id="stop">Stop&nbsp;<a class="anchor" href="#stop">&#xE732;</a></h2>
+<p>For restoring, first stop postgres:</p>
+<pre data-lang="sh" style="background-color:#2b303b;color:#c0c5ce;" class="language-sh "><code class="language-sh" data-lang="sh"><span style="color:#bf616a;">systemctl</span><span> stop postgresql.service
+</span></code></pre>
+<h2 id="restore">Restore&nbsp;<a class="anchor" href="#restore">&#xE732;</a></h2>
+<pre data-lang="sh" style="background-color:#2b303b;color:#c0c5ce;" class="language-sh "><code class="language-sh" data-lang="sh"><span style="color:#bf616a;">pgbackrest</span><span> restore</span><span style="color:#bf616a;"> --stanza</span><span>=stanza_name</span><span style="color:#bf616a;"> --type</span><span>=name</span><span style="color:#bf616a;"> --target</span><span>=RP1
+</span></code></pre>
+<h2 id="recovery-target-name">recovery_target_name&nbsp;<a class="anchor" href="#recovery-target-name">&#xE732;</a></h2>
+<p>Check the <code>$PGDATA/postgres.auto.conf</code></p>
+<pre data-lang="conf" style="background-color:#2b303b;color:#c0c5ce;" class="language-conf "><code class="language-conf" data-lang="conf"><span style="color:#bf616a;">restore_command </span><span>= </span><span style="color:#a3be8c;">&#39;pgbackrest --stanza=stanza_name archive-get %f &quot;%p&quot;&#39;
+</span><span style="color:#bf616a;">recovery_target_name </span><span>= </span><span style="color:#a3be8c;">&#39;RP1&#39;
+</span></code></pre>
+<h2 id="start">Start&nbsp;<a class="anchor" href="#start">&#xE732;</a></h2>
+<p>Start postgresql and check the data:</p>
+<pre data-lang="sh" style="background-color:#2b303b;color:#c0c5ce;" class="language-sh "><code class="language-sh" data-lang="sh"><span style="color:#bf616a;">systemctl</span><span> start postgresql.service
+</span></code></pre>
+<h2 id="promote">promote&nbsp;<a class="anchor" href="#promote">&#xE732;</a></h2>
+<p>After the recovery and if data is at the desired point:</p>
+<pre data-lang="sql" style="background-color:#2b303b;color:#c0c5ce;" class="language-sql "><code class="language-sql" data-lang="sql"><span style="color:#b48ead;">SELECT</span><span> pg_promote();
+</span></code></pre>
+
+    
+        </div>
+
+    </article>
+</main>
+
+
+    <script type="text/javascript" src="https://dbre.xyz/elasticlunr.min.js" defer></script>
+    <script type="text/javascript" src="https://dbre.xyz/search_index.en.js" defer></script>
+<script type="text/javascript" src="https://dbre.xyz/js.js" defer></script>
+
+</body>
+</html>

@@ -1,0 +1,125 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://dbre.xyz/main.css">
+    <link rel="icon" href="https://dbre.xyz/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <title> DBRE.xyz | Lock Wait Timeout </title>
+</head>
+<body>
+
+<main>
+    
+    <nav>
+            <a href="https:&#x2F;&#x2F;dbre.xyz">
+                        <img src="https://dbre.xyz/logo.svg" alt="logo"/>
+                    </a>
+                <a href="javascript:void(0);" onclick="burger()" id="mobile" class="ms-Icon--GlobalNavButton"></a>
+            <div id="trees">
+                <input class="tree-toggle" type="checkbox" id="mariadb"
+                           checked/>
+                    <label class="tree-toggle-label"
+                           for="mariadb">MariaDB</label>
+
+                    <ul class="subtree">
+                        <li >
+                                <a href="https://dbre.xyz/mariadb/logical-backup/">Logical backup</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/mariadb/physical-backup/">Physical backup</a>
+                            </li>
+
+                            <li class="active">
+                                <a href="https://dbre.xyz/mariadb/lock-wait-timeout/">Lock Wait Timeout</a>
+                            </li>
+
+                            </ul>
+                <input class="tree-toggle" type="checkbox" id="postgresql"
+                           />
+                    <label class="tree-toggle-label"
+                           for="postgresql">PostgreSQL</label>
+
+                    <ul class="subtree">
+                        <li >
+                                <a href="https://dbre.xyz/postgresql/pitr/">Point-In-Time Recovery</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/latency-connectivity/">Latency &amp; Connectivity</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/restore-point/">pg_create_restore_point</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/slow-queries/">slow queries</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/psqlrc/">.psqlrc</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/size/">database size</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/extensions/">Extensions</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/upgrade/">Upgrade major version</a>
+                            </li>
+
+                            </ul>
+                <input class="tree-toggle" type="checkbox" id="common"
+                           />
+                    <label class="tree-toggle-label"
+                           for="common">Common</label>
+
+                    <ul class="subtree">
+                        <li >
+                                <a href="https://dbre.xyz/common/io/">I&#x2F;O</a>
+                            </li>
+
+                            </ul>
+                </div>
+        </nav>
+    <article>
+
+        <div id="on_right">
+                <span id="search-ico" class="ms-Icon--Search"></span>
+            </div>
+            <div class="search-container">
+                <input id="search" type="search" placeholder="Search as you type...">
+                <div class="search-results">
+                    <div class="search-results__header"></div>
+                    <ul class="search-results__items"></ul>
+                </div>
+            </div>
+        <div id="wrap">
+            
+        <p>In cases where you get an error like this <code>Lock wait timeout exceeded; try restarting transaction</code>, it indicates that a transaction is waiting for a lock
+to be released, but the wait time has exceeded the configured limit.</p>
+<p>To resolve this issue, you can try the following steps:
+<strong>Increase the <code>innodb_lock_wait_timeout</code></strong>: This setting controls how long a transaction will wait for a lock before timing out. You can increase this value in your MariaDB configuration file (usually <code>my.cnf</code>) under the <code>[mysqld]</code> section:</p>
+<pre data-lang="ini" style="background-color:#2b303b;color:#c0c5ce;" class="language-ini "><code class="language-ini" data-lang="ini"><span style="color:#b48ead;">[mysqld]
+</span><span style="color:#bf616a;">innodb_lock_wait_timeout </span><span>= </span><span style="color:#d08770;">120  </span><span style="color:#65737e;"># Set to 120 seconds, adjust as needed
+</span></code></pre>
+
+    
+        </div>
+
+    </article>
+</main>
+
+
+    <script type="text/javascript" src="https://dbre.xyz/elasticlunr.min.js" defer></script>
+    <script type="text/javascript" src="https://dbre.xyz/search_index.en.js" defer></script>
+<script type="text/javascript" src="https://dbre.xyz/js.js" defer></script>
+
+</body>
+</html>

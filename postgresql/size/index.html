@@ -1,0 +1,175 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://dbre.xyz/main.css">
+    <link rel="icon" href="https://dbre.xyz/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <title> DBRE.xyz | database size </title>
+</head>
+<body>
+
+<main>
+    
+    <nav>
+            <a href="https:&#x2F;&#x2F;dbre.xyz">
+                        <img src="https://dbre.xyz/logo.svg" alt="logo"/>
+                    </a>
+                <a href="javascript:void(0);" onclick="burger()" id="mobile" class="ms-Icon--GlobalNavButton"></a>
+            <div id="trees">
+                <input class="tree-toggle" type="checkbox" id="mariadb"
+                           />
+                    <label class="tree-toggle-label"
+                           for="mariadb">MariaDB</label>
+
+                    <ul class="subtree">
+                        <li >
+                                <a href="https://dbre.xyz/mariadb/logical-backup/">Logical backup</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/mariadb/physical-backup/">Physical backup</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/mariadb/lock-wait-timeout/">Lock Wait Timeout</a>
+                            </li>
+
+                            </ul>
+                <input class="tree-toggle" type="checkbox" id="postgresql"
+                           checked/>
+                    <label class="tree-toggle-label"
+                           for="postgresql">PostgreSQL</label>
+
+                    <ul class="subtree">
+                        <li >
+                                <a href="https://dbre.xyz/postgresql/pitr/">Point-In-Time Recovery</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/latency-connectivity/">Latency &amp; Connectivity</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/restore-point/">pg_create_restore_point</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/slow-queries/">slow queries</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/psqlrc/">.psqlrc</a>
+                            </li>
+
+                            <li class="active">
+                                <a href="https://dbre.xyz/postgresql/size/">database size</a>
+                            </li>
+
+                            
+                                    
+                                    
+                                        <ul id="toc">
+                                            <li><a href="
+                                                        https://dbre.xyz/postgresql/size/#database-size">Database size</a>
+                                                    </li>
+                                            <li><a href="
+                                                        https://dbre.xyz/postgresql/size/#all-databases">All databases</a>
+                                                    </li>
+                                            <li><a href="
+                                                        https://dbre.xyz/postgresql/size/#table-size">Table size</a>
+                                                    </li>
+                                            <li><a href="
+                                                        https://dbre.xyz/postgresql/size/#schema-not-public">Schema not public</a>
+                                                    </li>
+                                            </ul>
+                                    <li >
+                                <a href="https://dbre.xyz/postgresql/extensions/">Extensions</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/upgrade/">Upgrade major version</a>
+                            </li>
+
+                            </ul>
+                <input class="tree-toggle" type="checkbox" id="common"
+                           />
+                    <label class="tree-toggle-label"
+                           for="common">Common</label>
+
+                    <ul class="subtree">
+                        <li >
+                                <a href="https://dbre.xyz/common/io/">I&#x2F;O</a>
+                            </li>
+
+                            </ul>
+                </div>
+        </nav>
+    <article>
+
+        <div id="on_right">
+                <span id="search-ico" class="ms-Icon--Search"></span>
+            </div>
+            <div class="search-container">
+                <input id="search" type="search" placeholder="Search as you type...">
+                <div class="search-results">
+                    <div class="search-results__header"></div>
+                    <ul class="search-results__items"></ul>
+                </div>
+            </div>
+        <div id="wrap">
+            
+        <h2 id="database-size">Database size&nbsp;<a class="anchor" href="#database-size">&#xE732;</a></h2>
+<pre data-lang="sql" style="background-color:#2b303b;color:#c0c5ce;" class="language-sql "><code class="language-sql" data-lang="sql"><span style="color:#b48ead;">SELECT</span><span> pg_size_pretty(pg_database_size(current_database()));
+</span></code></pre>
+<blockquote>
+<p>this is limited to the current database</p>
+</blockquote>
+<h2 id="all-databases">All databases&nbsp;<a class="anchor" href="#all-databases">&#xE732;</a></h2>
+<p>To get size for all the databases:</p>
+<pre data-lang="sql" style="background-color:#2b303b;color:#c0c5ce;" class="language-sql "><code class="language-sql" data-lang="sql"><span style="color:#b48ead;">SELECT
+</span><span>    datname AS database_name,
+</span><span>    pg_size_pretty(pg_database_size(datname)) AS size
+</span><span style="color:#b48ead;">FROM
+</span><span>    pg_database
+</span><span style="color:#b48ead;">ORDER BY
+</span><span>    pg_database_size(datname) </span><span style="color:#b48ead;">DESC</span><span>;
+</span></code></pre>
+<h2 id="table-size">Table size&nbsp;<a class="anchor" href="#table-size">&#xE732;</a></h2>
+<pre data-lang="sql" style="background-color:#2b303b;color:#c0c5ce;" class="language-sql "><code class="language-sql" data-lang="sql"><span style="color:#b48ead;">SELECT
+</span><span>    table_schema || &#39;</span><span style="color:#a3be8c;">.</span><span>&#39; || table_name AS table_full_name,
+</span><span>    pg_size_pretty(pg_total_relation_size(table_schema || &#39;</span><span style="color:#a3be8c;">.</span><span>&#39; || table_name)) AS total_size,
+</span><span>    pg_size_pretty(pg_table_size(table_schema || &#39;</span><span style="color:#a3be8c;">.</span><span>&#39; || table_name)) AS table_size,
+</span><span>    pg_size_pretty(pg_indexes_size(table_schema || &#39;</span><span style="color:#a3be8c;">.</span><span>&#39; || table_name)) AS indexes_size
+</span><span style="color:#b48ead;">FROM
+</span><span>    </span><span style="color:#d08770;">information_schema</span><span>.</span><span style="color:#d08770;">tables
+</span><span style="color:#b48ead;">WHERE
+</span><span>    table_type = &#39;</span><span style="color:#a3be8c;">BASE TABLE</span><span>&#39;
+</span><span style="color:#b48ead;">ORDER BY
+</span><span>    pg_total_relation_size(table_schema || &#39;</span><span style="color:#a3be8c;">.</span><span>&#39; || table_name) </span><span style="color:#b48ead;">DESC</span><span>;
+</span></code></pre>
+<h2 id="schema-not-public">Schema not public&nbsp;<a class="anchor" href="#schema-not-public">&#xE732;</a></h2>
+<pre data-lang="sql" style="background-color:#2b303b;color:#c0c5ce;" class="language-sql "><code class="language-sql" data-lang="sql"><span style="color:#b48ead;">SELECT
+</span><span>    schemaname || &#39;</span><span style="color:#a3be8c;">.</span><span>&#39; || relname AS table_full_name,
+</span><span>    pg_size_pretty(pg_total_relation_size(relid)) AS total_size,
+</span><span>    pg_size_pretty(pg_table_size(relid)) AS table_size,
+</span><span>    pg_size_pretty(pg_indexes_size(relid)) AS indexes_size
+</span><span style="color:#b48ead;">FROM
+</span><span>    </span><span style="color:#d08770;">pg_catalog</span><span>.</span><span style="color:#d08770;">pg_statio_user_tables
+</span><span style="color:#b48ead;">ORDER BY
+</span><span>    pg_total_relation_size(relid) </span><span style="color:#b48ead;">DESC</span><span>;
+</span></code></pre>
+
+    
+        </div>
+
+    </article>
+</main>
+
+
+    <script type="text/javascript" src="https://dbre.xyz/elasticlunr.min.js" defer></script>
+    <script type="text/javascript" src="https://dbre.xyz/search_index.en.js" defer></script>
+<script type="text/javascript" src="https://dbre.xyz/js.js" defer></script>
+
+</body>
+</html>
