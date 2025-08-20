@@ -11,11 +11,17 @@ Example using `pg_basebackup`:
 pg_basebackup -D /tmp/pgbackup -F tar -z -X stream -c fast -P -U postgres
 ```
 
-This will backup all the data in the PostgreSQL cluster to a tar file in `/tmp/pgbackup`. and create the file:
+If want to run this remotely need to add the `-h` option with the IP address of the PostgreSQL server:
 
-    * base.tar.gz
-    * pg_wal.tar.gz
-    * backup_manifest
+```bash
+pg_basebackup -h <postgresql-ip> -p 5432 -D /tmp/pgbackup -F tar -z -X stream -c fast -P -U postgres
+```
+
+This will backup all the data into a tar file in `/tmp/pgbackup`. and create the file:
+
+    - base.tar.gz
+    - pg_wal.tar.gz
+    - backup_manifest
 
 To restore, you need to delete the PGDATA directory and extract the tar files:
 
