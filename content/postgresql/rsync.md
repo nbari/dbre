@@ -13,7 +13,7 @@ This can be done without stopping the PostgreSQL server, the steps are as
 follows:
 
 1. `rsync` the data directory to the new location.
-2. Once almost all the data is copied, you can either stop the PostgreSQL server (adviced) and sync the ramaining data or take a `pg_backup_start`,  rsync the remaining data and then take a `pg_backup_stop` and then sync again.
+2. Once almost all the data is copied, you can either stop the PostgreSQL server (advised) and sync the ramaining data or take a `pg_backup_start`,  rsync the remaining data and then take a `pg_backup_stop` and then sync again.
 3. update the `data_directory` parameter in `postgresql.conf` of the new location
 4. start the PostgreSQL server
 
@@ -26,6 +26,7 @@ rsync -aHAXx --numeric-ids --delete \
   /var/lib/postgresql/16 \
   newserver:/var/lib/postgresql/16
  ```
+> You may also exclude the pg_ha.conf, pg_indent.conf and the postgresql.conf if you want to keep the old configuration files.
 
 Once the rsync is almost done, create the backup label and sync again:
 
@@ -50,3 +51,49 @@ run the `rsync` again to copy the remaining data.
 
 
 Finally, update the `data_directory` parameter in `postgresql.conf` on the new server.
+
+# script
+
+Here is a script that automates the process:
+
+```bash
+#!/bin/bash
+set -euo pipefail
+
+SRC_PGDATA="/var/lib/postgresql/15/main"
+DST_HOST="newserver"
+DST_PGDATA="/var/lib/postgresql/15/main"
+PGUSER="postgres"
+
+RSYNC_OPTS="-aHAXx --numeric-ids --delete \
+  --exclude postmaster.pid \
+  --exclude postmaster.opts \
+  --exclude pg_hba.conf \
+  --exclude pg_ident.conf \
+  --exclude postgresql.conf"
+
+echo "[*] Pre-syncing data directory (this may take a while)..."
+rsync $RSYNC_OPTS "$SRC_PGDATA/" "$DST_HOST:$DST_PGDATA/"
+
+echo "[*] Starting PostgreSQL backup mode..."
+psql -U $PGUSER -d postgres -c "SELECT pg_backup_start('rsync_migration', true);"
+
+echo "[*] Syncing data directory again (this should take less time)..."
+rsync $RSYNC_OPTS "$SRC_PGDATA/" "$DST_HOST:$DST_PGDATA/"
+
+echo "[*] Stopping PostgreSQL backup mode..."
+psql -U $PGUSER -d postgres -c "SELECT pg_backup_stop();"
+
+echo "[*] Last sync of data directory..."
+rsync $RSYNC_OPTS "$SRC_PGDATA/" "$DST_HOST:$DST_PGDATA/"
+
+echo "[*] Fixing ownership on destination..."
+ssh "$DST_HOST" "sudo chown -R postgres:postgres $DST_PGDATA"
+
+echo
+echo "[*] Migration complete!"
+echo "Now you can start PostgreSQL on $DST_HOST with:"
+echo "    pg_ctl -D $DST_PGDATA start"
+echo
+echo "Don't forget to update postgresql.conf if needed."
+```
