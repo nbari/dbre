@@ -3,7 +3,7 @@ title = "rsync"
 weight = 10
 +++
 
-# rsync
+# Move PostgreSQL data directory with `rsync`
 
 You can use rsync if need to move your PostgreSQL data directory to another
 location. This is useful if you are running out of space on the current disk or
