@@ -54,7 +54,9 @@ Then run the rsync again to copy the remaining data and when finished run:
 SELECT pg_backup_stop();
 ```
 
-Save the output of `pg_backup_stop()` as it contains the required WAL files needed for recovery, it will output something like:
+Save the output of `pg_backup_stop()`, as it contains the backup_label and the
+WAL segment name needed to make the backup consistent. This tells you which WAL
+files must be copied to the destination for recovery. The output looks like:
 
 ```txt
 postgres=# SELECT pg_backup_stop();
@@ -74,7 +76,7 @@ NOTICE:  all required WAL segments have been archived
 ```
 
 
-In the new server create the backup_label file in the new data directory with the content from the output of `pg_backup_stop()`., from the example above it would be:
+In the new server create the `backup_label` file in the new data directory `$PGDATA` with the content from the output of `pg_backup_stop()`., from the example above it would be:
 
 ```txt
 START WAL LOCATION: 20E0/7B000028 (file 00000008000020E00000007B)
@@ -121,11 +123,22 @@ psql -U $PGUSER -d postgres -c "SELECT pg_backup_start('rsync_migration', true);
 echo "[*] Syncing data directory again (this should take less time)..."
 rsync $RSYNC_OPTS "$SRC_PGDATA/" "$DST_HOST:$DST_PGDATA/"
 
-echo "[*] Stopping PostgreSQL backup mode..."
-psql -U $PGUSER -d postgres -c "SELECT pg_backup_stop();"
+echo "[*] Stopping PostgreSQL backup mode and capturing label..."
+backup_info=$(psql -U $PGUSER -d postgres -t -A -c "SELECT pg_backup_stop();")
+
+# Extract the formatted part from the output
+backup_label=$(echo "$backup_info" | sed 's/^[ (]\|[",)]$//g')
+
+# Write the label into a temp file
+tmpfile=$(mktemp)
+echo "$backup_label" | tr '+' '\n' > "$tmpfile"
 
 echo "[*] Last sync of data directory..."
 rsync $RSYNC_OPTS "$SRC_PGDATA/" "$DST_HOST:$DST_PGDATA/"
+
+echo "[*] Installing backup_label on destination..."
+scp "$tmpfile" "$DST_HOST:$DST_PGDATA/backup_label"
+rm -f "$tmpfile"
 
 echo "[*] Fixing ownership on destination..."
 ssh "$DST_HOST" "sudo chown -R postgres:postgres $DST_PGDATA"
