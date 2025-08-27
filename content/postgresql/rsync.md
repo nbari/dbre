@@ -20,12 +20,12 @@ follows:
 Here is an example of how to do this, from the active server to a new server:
 
 ```bash
-rsync -aHAXx --numeric-ids --delete -info=progress2 --inplace --partial \
+rsync -aHAXx --numeric-ids --delete --info=progress2 --inplace --partial \
   -e "ssh -T -c aes128-gcm@openssh.com -o Compression=no -x" \
   --exclude postmaster.pid \
   --exclude postmaster.opts \
-  /var/lib/postgresql/16 \
-  newserver:/var/lib/postgresql/16
+  /opt/postgres/16 \
+  newserver:/opt/postgres
  ```
 > You may also exclude the pg_ha.conf, pg_indent.conf and the postgresql.conf if you want to keep the old configuration files.
 
