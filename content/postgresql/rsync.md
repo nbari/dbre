@@ -40,7 +40,7 @@ The ssh options explained (This often doubles throughput on LANs):
 Once the rsync is almost done, create the backup label and sync again:
 
 ```sql
-SELECT pg_backup_start('my_backup', true);
+SELECT pg_backup_start('rsync_migration', true);
 ```
 > The `true` will try to create the checkpoint faster
 
@@ -66,7 +66,7 @@ NOTICE:  all required WAL segments have been archived
  BACKUP METHOD: streamed                                                          +
  BACKUP FROM: primary                                                             +
  START TIME: 2025-08-27 13:51:42 UTC                                              +
- LABEL: my_backup                                                                 +
+ LABEL: rsync_migration                                                                 +
  START TIMELINE: 8                                                                +
  ","")
 (1 row)
@@ -82,7 +82,7 @@ CHECKPOINT LOCATION: 20E0/7B000060
 BACKUP METHOD: streamed
 BACKUP FROM: primary
 START TIME: 2025-08-27 13:51:42 UTC
-LABEL: my_backup
+LABEL: rsync_migration
 START TIMELINE: 8
 ```
 
