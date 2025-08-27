@@ -20,7 +20,7 @@ follows:
 Here is an example of how to do this, from the active server to a new server:
 
 ```bash
-rsync -aHAXx --numeric-ids --delete \
+rsync -aHAXx --numeric-ids --delete -info=progress2 --inplace --partial \
   --exclude postmaster.pid \
   --exclude postmaster.opts \
   /var/lib/postgresql/16 \
