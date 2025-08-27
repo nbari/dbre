@@ -5,7 +5,7 @@ weight = 10
 
 ## Rsync
 
-You can use rsync if need to move your PostgreSQL data directory to another
+You can use `rsync` if need to move your PostgreSQL data directory to another
 location. This is useful if you are running out of space on the current disk or
 if you want to move the data directory to a faster disk.
 
@@ -54,12 +54,42 @@ Then run the rsync again to copy the remaining data and when finished run:
 SELECT pg_backup_stop();
 ```
 
-This will remove the backup label file and stop the full-page writes in WAL.
+Save the output of `pg_backup_stop()` as it contains the required WAL files needed for recovery, it will output something like:
 
-run the `rsync` again to copy the remaining data.
+```txt
+postgres=# SELECT pg_backup_stop();
+NOTICE:  all required WAL segments have been archived
+                                  pg_backup_stop
+-----------------------------------------------------------------------------------
+ (20E0/7B000138,"START WAL LOCATION: 20E0/7B000028 (file 00000008000020E00000007B)+
+ CHECKPOINT LOCATION: 20E0/7B000060                                               +
+ BACKUP METHOD: streamed                                                          +
+ BACKUP FROM: primary                                                             +
+ START TIME: 2025-08-27 13:51:42 UTC                                              +
+ LABEL: my_backup                                                                 +
+ START TIMELINE: 8                                                                +
+ ","")
+(1 row)
+
+```
 
 
-Finally, update the `data_directory` parameter in `postgresql.conf` on the new server.
+In the new server create the backup_label file in the new data directory with the content from the output of `pg_backup_stop()`., from the example above it would be:
+
+```txt
+START WAL LOCATION: 20E0/7B000028 (file 00000008000020E00000007B)
+CHECKPOINT LOCATION: 20E0/7B000060
+BACKUP METHOD: streamed
+BACKUP FROM: primary
+START TIME: 2025-08-27 13:51:42 UTC
+LABEL: my_backup
+START TIMELINE: 8
+```
+
+Opionaly, run the `rsync` again to copy the remaining data.
+
+
+Finally, update the `data_directory` parameter in `postgresql.conf` on the new server, ensure the `backup_label` file is present in the new data directory, and start PostgreSQL:
 
 
 ## Script
