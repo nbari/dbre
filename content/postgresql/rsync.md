@@ -29,7 +29,7 @@ rsync -aHAXx --numeric-ids --delete -info=progress2 --inplace --partial \
  ```
 > You may also exclude the pg_ha.conf, pg_indent.conf and the postgresql.conf if you want to keep the old configuration files.
 
-The ssh options explained:
+The ssh options explained (This often doubles throughput on LANs):
 
     -T disables SSH pseudo-tty (tiny win).
     -c aes128-gcm@openssh.com uses a very fast cipher (assuming OpenSSH ≥ 6.2).
