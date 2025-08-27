@@ -25,7 +25,7 @@ rsync -aHAXx --numeric-ids --delete --info=progress2 --inplace --partial \
   --exclude postmaster.pid \
   --exclude postmaster.opts \
   /opt/postgres/16 \
-  newserver:/opt/postgres
+  newserver:/opt/postgres/
  ```
 > You may also exclude the pg_ha.conf, pg_indent.conf and the postgresql.conf if you want to keep the old configuration files.
 
