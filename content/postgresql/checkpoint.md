@@ -93,8 +93,13 @@ SELECT pg_wal_lsn_diff(pg_current_wal_lsn(), checkpoint_lsn)/1024/1024 AS mb_wal
 FROM pg_control_checkpoint(); \watch 1
 ```
 
-And also list the pg_wal directory to see the number of WAL files:
+And also list the `pg_wal` directory to see the number of WAL files:
 
 ```bash
 watch ls -lh $PGDATA/pg_wal
 ```
+
+You can adjust the `checkpoint_timeout` and `max_wal_size` settings to see how
+they affect the frequency of checkpoints and the number of WAL files generated,
+also theck the PostgreSQL logs for checkpoint messages if `log_checkpoints` is
+enabled.
