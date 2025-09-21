@@ -15,8 +15,6 @@ jobs:
       # 1️⃣ Checkout repository
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          persist-credentials: false  # Important: disable default token
 
       # 2️⃣ Determine branch-specific variables
       - name: Set deploy branch
