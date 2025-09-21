@@ -28,9 +28,6 @@ jobs:
             echo "PAGES_BRANCH=preview" >> $GITHUB_ENV
           fi
 
-      - name: Build Zola
-        run: zola build
-
       - name: Deploy to GitHub Pages
         uses: shalzz/zola-deploy-action@v0.21.0
         env:
