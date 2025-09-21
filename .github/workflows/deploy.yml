@@ -31,6 +31,6 @@ jobs:
       - name: Deploy to GitHub Pages
         uses: shalzz/zola-deploy-action@v0.21.0
         env:
-          BUILD_DIR: public  # Adjust if your build dir is different
+          BUILD_DIR: .
           PAGES_BRANCH: ${{ env.PAGES_BRANCH }}
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}  # Use personal access token
