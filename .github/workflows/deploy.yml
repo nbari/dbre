@@ -32,7 +32,7 @@ jobs:
         run: zola build
 
       - name: Deploy to GitHub Pages
-        uses: shalzz/zola-deploy-action@v0.21
+        uses: shalzz/zola-deploy-action@v0.21.0
         env:
           BUILD_DIR: public  # Adjust if your build dir is different
           PAGES_BRANCH: ${{ env.PAGES_BRANCH }}
