@@ -9,34 +9,31 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
-    if: github.ref != 'refs/heads/main'
     steps:
-      - name: Checkout main
+      # 1️⃣ Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
         with:
-          persist-credentials: false
+          persist-credentials: false  # Important: disable default token
 
-      - name: Build and deploy
-        uses: shalzz/zola-deploy-action@v0.21.0
+      # 2️⃣ Determine branch-specific variables
+      - name: Set deploy branch
+        id: vars
+        run: |
+          if [ "${GITHUB_REF#refs/heads/}" = "main" ]; then
+            echo "PAGES_BRANCH=cf-pages" >> $GITHUB_ENV
+          else
+            echo "PAGES_BRANCH=preview" >> $GITHUB_ENV
+          fi
+
+      - name: Build Zola
+        run: zola build
+
+      - name: Deploy to GitHub Pages
+        uses: shalzz/zola-deploy-action@v0.21
         env:
-          BUILD_DIR: .
-          PAGES_BRANCH: preview
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-
-  build_and_deploy:
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-    steps:
-      - name: Checkout main
-        uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-
-      - name: Build and deploy
-        uses: shalzz/zola-deploy-action@v0.21.0
-        env:
-          BUILD_DIR: .
-          PAGES_BRANCH: cf-pages
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          BUILD_DIR: public  # Adjust if your build dir is different
+          PAGES_BRANCH: ${{ env.PAGES_BRANCH }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}  # Use personal access token
