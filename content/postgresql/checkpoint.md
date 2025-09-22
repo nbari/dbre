@@ -12,6 +12,23 @@ the shared buffer cache to the disk, as well as updating the write-ahead log
 (WAL) to reflect these changes. Checkpoints help minimize recovery time in case
 of a crash by reducing the amount of WAL that needs to be replayed.
 
+But defaults are conservative, and checkpoints may occur more frequently than
+necessary for your workload. Frequent checkpoints can lead to increased I/O
+activity, which may impact performance. By tuning checkpoint settings, you can
+optimize the balance between data durability and system performance.
+
+Change the `checkpoint_timeout` to a longer duration, for example:
+
+```
+checkpoint_timeout = 30min
+```
+
+Optional settings to consider:
+
+```
+min_wal_size = 2 * wal_segment_size
+max_wal_size = 8 * wal_segment_size <-- this may fill up the disk if wal_segment_size is large
+```
 
 
 ### Relationship between `wal_segment_size` and `max_wal_size`
