@@ -73,6 +73,8 @@ pg_dump \
   | gzip > mydatabase_$(date +%F).sql.gz
 ```
 
+> This will not backup roles and tablespaces, you need to recreate them manually.
+
 | Flag                        | Purpose               | Why It Matters                       |
 | --------------------------- | --------------------- | ------------------------------------ |
 | `-F p`                      | Plain SQL format      | Widely portable and readable         |
@@ -88,4 +90,35 @@ To restore the backup, use the following command:
 
 ```bash
 gunzip -c mydatabase_2025-10-29.sql.gz | psql -U postgres -d mydatabase
+```
+
+### Using pg_dumpall
+
+To back up all databases and global objects (like roles and tablespaces), use `pg_dumpall`:
+
+```bash
+pg_dumpall -U postgres > full_backup.sql
+```
+To restore the backup created by `pg_dumpall`, use the following command:
+
+```bash
+psql -U postgres -f full_backup.sql
+```
+
+
+### Example for full logical backup and restore
+
+Backup only globals (roles and tablespaces):
+
+```bash
+pg_dumpall -U postgres --globals-only > globals.sql
+```
+
+Backup all databases separately for more granular control:
+
+```bash
+pg_dump -U postgres mydb1 > mydb1.sql
+pg_dump -U postgres mydb2 > mydb2.sql
+pg_dump -U postgres mydb3 > mydb3.sql
+...
 ```
