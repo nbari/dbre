@@ -108,6 +108,7 @@ DST_PGDATA="/var/lib/postgresql/15/main"
 PGUSER="postgres"
 
 RSYNC_OPTS="-aHAXx --numeric-ids --delete \
+  --info=progress2 --partial \
   --exclude postmaster.pid \
   --exclude postmaster.opts \
   --exclude pg_hba.conf \
