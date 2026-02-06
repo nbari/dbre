@@ -114,24 +114,52 @@ RSYNC_OPTS="-aHAXx --numeric-ids --delete \
   --exclude pg_ident.conf \
   --exclude postgresql.conf"
 
+# 1. Start psql as a background coprocess so the session stays open
+#    -t: tuples only (no headers)
+#    -A: unaligned (no extra whitespace)
+#    -q: quiet (no welcome messages)
+echo "[*] Starting persistent PostgreSQL session..."
+coproc PG { psql -U "$PGUSER" -d postgres -t -A -q; }
+
+# 2. Pre-sync the data directory
 echo "[*] Pre-syncing data directory (this may take a while)..."
 rsync $RSYNC_OPTS "$SRC_PGDATA/" "$DST_HOST:$DST_PGDATA/"
 
+# 3. Start backup mode and capture the label
 echo "[*] Starting PostgreSQL backup mode..."
-psql -U $PGUSER -d postgres -c "SELECT pg_backup_start('rsync_migration', true);"
+echo "SELECT pg_backup_start('rsync_migration', true);" >&"${PG[1]}"
 
+# Read the output to ensure it started (consume the single line output of start)
+read -r -u "${PG[0]}" _
+
+# 4. Sync the data directory again to capture any changes since the first sync
 echo "[*] Syncing data directory again (this should take less time)..."
 rsync $RSYNC_OPTS "$SRC_PGDATA/" "$DST_HOST:$DST_PGDATA/"
 
+# 5. Send STOP command and fetch the label file content
+#    We select only the 'labelfile' column.
+#    We append a sentinel string 'END_OF_LABEL' so we know when to stop reading.
 echo "[*] Stopping PostgreSQL backup mode and capturing label..."
-backup_info=$(psql -U $PGUSER -d postgres -t -A -c "SELECT pg_backup_stop();")
+echo "SELECT labelfile FROM pg_backup_stop();" >&"${PG[1]}"
+echo "SELECT 'END_OF_LABEL';" >&"${PG[1]}"
 
-# Extract the formatted part from the output
-backup_label=$(echo "$backup_info" | sed 's/^[ (]\|[",)]$//g')
+# 6. Read the label content line-by-line from the coprocess
+backup_label=""
+while read -r -u "${PG[0]}" line; do
+    if [[ "$line" == "END_OF_LABEL" ]]; then
+        break
+    fi
+    # Reconstruct the multiline string
+    backup_label+="$line"$'\n'
+done
 
-# Write the label into a temp file
+# Close the coprocess
+echo "\q" >&"${PG[1]}"
+
+# 7. Write the label to a temp file
 tmpfile=$(mktemp)
-echo "$backup_label" | tr '+' '\n' > "$tmpfile"
+# The variable contains the exact content needed for the file
+echo -n "$backup_label" > "$tmpfile"
 
 echo "[*] Last sync of data directory..."
 rsync $RSYNC_OPTS "$SRC_PGDATA/" "$DST_HOST:$DST_PGDATA/"
