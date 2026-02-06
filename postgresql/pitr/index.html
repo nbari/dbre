@@ -1,0 +1,342 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://dbre.xyz/main.css">
+    <link rel="icon" href="https://dbre.xyz/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <title> DBRE.xyz | Point-In-Time Recovery </title>
+</head>
+<body>
+
+<main>
+    
+    <nav>
+            <a href="https:&#x2F;&#x2F;dbre.xyz">
+                        <img src="https://dbre.xyz/logo.svg" alt="logo"/>
+                    </a>
+                <a href="javascript:void(0);" onclick="burger()" id="mobile" class="ms-Icon--GlobalNavButton"></a>
+            <div id="trees">
+                <input class="tree-toggle" type="checkbox" id="mariadb"
+                           />
+                    <label class="tree-toggle-label"
+                           for="mariadb">MariaDB</label>
+
+                    <ul class="subtree">
+                        <li >
+                                <a href="https://dbre.xyz/mariadb/logical-backup/">Logical backup</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/mariadb/physical-backup/">Physical backup</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/mariadb/lock-wait-timeout/">Lock Wait Timeout</a>
+                            </li>
+
+                            </ul>
+                <input class="tree-toggle" type="checkbox" id="postgresql"
+                           checked/>
+                    <label class="tree-toggle-label"
+                           for="postgresql">PostgreSQL</label>
+
+                    <ul class="subtree">
+                        <li class="active">
+                                <a href="https://dbre.xyz/postgresql/pitr/">Point-In-Time Recovery</a>
+                            </li>
+
+                            
+                                    
+                                    
+                                        <ul id="toc">
+                                            <li><a href="
+                                                        https://dbre.xyz/postgresql/pitr/#stop-postgresql">Stop Postgresql</a>
+                                                    </li>
+                                            <li><a href="
+                                                        https://dbre.xyz/postgresql/pitr/#remove-pgdata">Remove PGDATA</a>
+                                                    </li>
+                                            <li><a href="
+                                                        https://dbre.xyz/postgresql/pitr/#restore-target-action-pause">Restore (--target-action=pause)</a>
+                                                    <ul>
+                                                            <li>
+                                                                    <a href="https://dbre.xyz/postgresql/pitr/#lsn">LSN</a>
+                                                                </li>
+                                                            </ul>
+                                                    </li>
+                                            <li><a href="
+                                                        https://dbre.xyz/postgresql/pitr/#pg-ctl">pg_ctl</a>
+                                                    </li>
+                                            <li><a href="
+                                                        https://dbre.xyz/postgresql/pitr/#recovery-target-time">recovery_target_time</a>
+                                                    </li>
+                                            <li><a href="
+                                                        https://dbre.xyz/postgresql/pitr/#pg-promote">pg_promote</a>
+                                                    </li>
+                                            <li><a href="
+                                                        https://dbre.xyz/postgresql/pitr/#start-postgresql">Start Postgresql</a>
+                                                    </li>
+                                            <li><a href="
+                                                        https://dbre.xyz/postgresql/pitr/#patroni">Patroni</a>
+                                                    </li>
+                                            <li><a href="
+                                                        https://dbre.xyz/postgresql/pitr/#archive">Archive</a>
+                                                    </li>
+                                            <li><a href="
+                                                        https://dbre.xyz/postgresql/pitr/#timelines">timelines</a>
+                                                    </li>
+                                            </ul>
+                                    <li >
+                                <a href="https://dbre.xyz/postgresql/latency-connectivity/">Latency &amp; Connectivity</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/restore-point/">pg_create_restore_point</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/slow-queries/">slow queries</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/psqlrc/">.psqlrc</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/size/">database size</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/extensions/">Extensions</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/upgrade/">Upgrade major version</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/backups/">Backups</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/rsync/">rsync</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/checkpoint/">checkpoint</a>
+                            </li>
+
+                            </ul>
+                <input class="tree-toggle" type="checkbox" id="common"
+                           />
+                    <label class="tree-toggle-label"
+                           for="common">Common</label>
+
+                    <ul class="subtree">
+                        <li >
+                                <a href="https://dbre.xyz/common/io/">I&#x2F;O</a>
+                            </li>
+
+                            </ul>
+                </div>
+        </nav>
+    <article>
+
+        <div id="on_right">
+                <span id="search-ico" class="ms-Icon--Search"></span>
+            </div>
+            <div class="search-container">
+                <input id="search" type="search" placeholder="Search as you type...">
+                <div class="search-results">
+                    <div class="search-results__header"></div>
+                    <ul class="search-results__items"></ul>
+                </div>
+            </div>
+        <div id="wrap">
+            
+        <p>Point-In-Time Recovery (PITR) in PostgreSQL together with
+<a href="https://pgbackrest.org">pgbackrest</a> allows you to restore a database to a
+specific point in time.</p>
+<p>This examples shows how to do an "interactive" backup, the first checkpoint is
+<code>2024-06-17 09:18:22+00</code>, multiple records inserted after that time, but we
+want to go back to that specific time to find if there is the required data</p>
+<blockquote>
+<p>if timezone is omitted, local time is assumed, for UTC use +00</p>
+</blockquote>
+<h2 id="stop-postgresql">Stop Postgresql&nbsp;<a class="anchor" href="#stop-postgresql">&#xE732;</a></h2>
+<p>First you need to stop postgres:</p>
+<pre data-lang="sh" style="background-color:#2b303b;color:#c0c5ce;" class="language-sh "><code class="language-sh" data-lang="sh"><span style="color:#bf616a;">systemctl</span><span> stop postgresql.service
+</span></code></pre>
+<blockquote>
+<p>this varies depending on your operating system here I am using <a href="https://www.debian.org/News/2023/20230610">Debian 12</a></p>
+</blockquote>
+<h2 id="remove-pgdata">Remove PGDATA&nbsp;<a class="anchor" href="#remove-pgdata">&#xE732;</a></h2>
+<p>Now remove the PGDATA directory, in my case:</p>
+<pre data-lang="sh" style="background-color:#2b303b;color:#c0c5ce;" class="language-sh "><code class="language-sh" data-lang="sh"><span style="color:#bf616a;">rm -rf</span><span> /db/16
+</span></code></pre>
+<h2 id="restore-target-action-pause">Restore (--target-action=pause)&nbsp;<a class="anchor" href="#restore-target-action-pause">&#xE732;</a></h2>
+<p>Perform the initially recovery with <a href="https://pgbackrest.org/user-guide.html#restore">pgbackrest restore</a>, restore to the
+desired point in time, but it is important to set <code>--target-action=pause</code> so
+recovery pauses once the target is reached instead of promoting the node:</p>
+<pre data-lang="sh" style="background-color:#2b303b;color:#c0c5ce;" class="language-sh "><code class="language-sh" data-lang="sh"><span style="color:#bf616a;">pgbackrest --stanza</span><span>=standalone \
+</span><span style="color:#bf616a;">--delta </span><span>\
+</span><span style="color:#bf616a;">--log-level-console</span><span>=info \
+</span><span style="color:#bf616a;">--type</span><span>=time \
+</span><span style="color:#bf616a;">--target</span><span>=&quot;</span><span style="color:#a3be8c;">2024-06-17 09:18:22+00</span><span>&quot; \
+</span><span style="color:#bf616a;">--target-action</span><span>=pause restore
+</span></code></pre>
+<h3 id="lsn">LSN&nbsp;<a class="anchor" href="#lsn">&#xE732;</a></h3>
+<p>In case you want to restore to an LSN (output of select pg_switch_wal();) you can use:</p>
+<pre data-lang="sh" style="background-color:#2b303b;color:#c0c5ce;" class="language-sh "><code class="language-sh" data-lang="sh"><span style="color:#bf616a;">pgbackrest --stanza</span><span>=standalone \
+</span><span style="color:#bf616a;">--delta </span><span>\
+</span><span style="color:#bf616a;">--log-level-console</span><span>=info \
+</span><span style="color:#bf616a;">--type</span><span>=lsn \
+</span><span style="color:#bf616a;">--target</span><span>=&quot;</span><span style="color:#a3be8c;">19/EC000000</span><span>&quot; \
+</span><span style="color:#bf616a;">--target-action</span><span>=pause restore
+</span></code></pre>
+<p>This will output something like this:</p>
+<pre data-lang="sh" style="background-color:#2b303b;color:#c0c5ce;" class="language-sh "><code class="language-sh" data-lang="sh"><span style="color:#bf616a;">$</span><span> pgbackrest</span><span style="color:#bf616a;"> --stanza</span><span>=standalone</span><span style="color:#bf616a;"> --delta --log-level-console</span><span>=info</span><span style="color:#bf616a;"> --type</span><span>=time</span><span style="color:#bf616a;"> --target</span><span>=&quot;</span><span style="color:#a3be8c;">2024-06-17 09:18:22+00</span><span>&quot;</span><span style="color:#bf616a;"> --target-action</span><span>=pause restore
+</span><span style="color:#bf616a;">2024-06-18</span><span> 16:21:02.983 P00   INFO: restore command begin 2.52:</span><span style="color:#bf616a;"> --delta --exec-id</span><span>=721872-e8f6a592</span><span style="color:#bf616a;"> --log-level-console</span><span>=info</span><span style="color:#bf616a;"> --log-path</span><span>=/db/pgbackrest/log</span><span style="color:#bf616a;"> --pg1-path</span><span>=/db/16</span><span style="color:#bf616a;"> --process-max</span><span>=3</span><span style="color:#bf616a;"> --repo1-cipher-pass</span><span>=&lt;redacted&gt; --repo1-cipher-type=aes-256-cbc</span><span style="color:#bf616a;"> --repo1-path</span><span>=/repo1</span><span style="color:#bf616a;"> --repo1-s3-bucket</span><span>=pg16</span><span style="color:#bf616a;"> --repo1-s3-endpoint</span><span>=my-s3-endpoint</span><span style="color:#bf616a;"> --repo1-s3-key</span><span>=&lt;redacted&gt; --repo1-s3-key-secret=&lt;redacted&gt; --repo1-s3-region=region</span><span style="color:#bf616a;"> --no-repo1-storage-verify-tls --repo1-type</span><span>=s3</span><span style="color:#bf616a;"> --spool-path</span><span>=/db/pgbackrest/spool</span><span style="color:#bf616a;"> --stanza</span><span>=standalone</span><span style="color:#bf616a;"> --target</span><span>=&quot;</span><span style="color:#a3be8c;">2024-06-17 09:18:22+00</span><span>&quot;</span><span style="color:#bf616a;"> --target-action</span><span>=pause</span><span style="color:#bf616a;"> --type</span><span>=time
+</span><span style="color:#bf616a;">WARN: --delta</span><span> or</span><span style="color:#bf616a;"> --force</span><span> specified but unable to find &#39;</span><span style="color:#a3be8c;">PG_VERSION</span><span>&#39; or &#39;</span><span style="color:#a3be8c;">backup.manifest</span><span>&#39; in &#39;</span><span style="color:#a3be8c;">/db/16</span><span>&#39; to confirm that this is a valid $</span><span style="color:#bf616a;">PGDATA</span><span> directory.</span><span style="color:#bf616a;"> --delta</span><span> and</span><span style="color:#bf616a;"> --force</span><span> have been disabled and if any files exist in the destination directories the restore will be aborted.
+</span><span style="color:#bf616a;">2024-06-18</span><span> 16:21:03.398 P00   INFO: repo1: restore backup set 20240612-190741F_20240615-101611I, recovery will start at 2024-06-15 10:16:11
+</span><span style="color:#bf616a;">2024-06-18</span><span> 16:21:46.235 P00   INFO: write updated /db/16/postgresql.auto.conf
+</span><span style="color:#bf616a;">2024-06-18</span><span> 16:21:46.240 P00   INFO: restore global/pg_control (performed last to ensure aborted restores cannot be started)
+</span><span style="color:#bf616a;">2024-06-18</span><span> 16:21:46.240 P00   INFO: restore size = 29.6MB, file total = 1270
+</span><span style="color:#bf616a;">2024-06-18</span><span> 16:21:46.241 P00   INFO: restore command end: completed successfully (43260ms)
+</span></code></pre>
+<h2 id="pg-ctl">pg_ctl&nbsp;<a class="anchor" href="#pg-ctl">&#xE732;</a></h2>
+<p>Start using <code>pg_ctl -D PGDATA start</code></p>
+<pre data-lang="sh" style="background-color:#2b303b;color:#c0c5ce;" class="language-sh "><code class="language-sh" data-lang="sh"><span style="color:#bf616a;">/usr/lib/postgresql/16/bin/pg_ctl -D</span><span> /db/16 start
+</span></code></pre>
+<p>In the Postgres logs, you can check that WAL replay paused once the configured recovery target was reached:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>024-06-18 16:24:19.279 P00   INFO: found 00000001000000000000008B in the archive asynchronously
+</span><span>2024-06-18 16:24:19.279 P00   INFO: archive-get command end: completed successfully (2ms)
+</span><span>time=2024-06-18 16:24:19 UTC, pid=721892 LOG:  restored log file &quot;00000001000000000000008B&quot; from archive
+</span><span>time=2024-06-18 16:24:19 UTC, pid=721892 LOG:  recovery stopping before commit of transaction 2996, time 2024-06-17 14:24:18.691936+00
+</span><span>time=2024-06-18 16:24:19 UTC, pid=721892 LOG:  pausing at the end of recovery
+</span><span>time=2024-06-18 16:24:19 UTC, pid=721892 HINT:  Execute pg_wal_replay_resume() to promote.
+</span></code></pre>
+<p>You can also verify WAL reply is paused by checking the output of the function <code>pg_is_wal_replay_paused</code>, for example:</p>
+<pre data-lang="sh" style="background-color:#2b303b;color:#c0c5ce;" class="language-sh "><code class="language-sh" data-lang="sh"><span style="color:#bf616a;">$</span><span> psql</span><span style="color:#bf616a;"> -c </span><span>&quot;</span><span style="color:#a3be8c;">SELECT pg_is_wal_replay_paused();</span><span>&quot;
+</span><span> </span><span style="color:#bf616a;">pg_is_wal_replay_paused
+</span><span style="color:#bf616a;">-------------------------
+</span><span> </span><span style="color:#bf616a;">t
+</span><span>(</span><span style="color:#bf616a;">1</span><span> row)
+</span></code></pre>
+<p>Connect and check if your data is at the desired state, if not, set a new recovery target <code>recovery_target_time</code>, then restart Postgres.</p>
+<p>To check the current recovery_target_time:</p>
+<pre data-lang="sh" style="background-color:#2b303b;color:#c0c5ce;" class="language-sh "><code class="language-sh" data-lang="sh"><span style="color:#bf616a;">$</span><span> psql</span><span style="color:#bf616a;"> -c </span><span>&quot;</span><span style="color:#a3be8c;">show recovery_target_time</span><span>&quot;
+</span><span>  </span><span style="color:#bf616a;">recovery_target_time
+</span><span style="color:#bf616a;">------------------------
+</span><span> </span><span style="color:#bf616a;">2024-06-17</span><span> 09:18:22+00
+</span><span>(</span><span style="color:#bf616a;">1</span><span> row)
+</span><span>
+</span><span>(</span><span style="color:#bf616a;">1</span><span> row)
+</span></code></pre>
+<h2 id="recovery-target-time">recovery_target_time&nbsp;<a class="anchor" href="#recovery-target-time">&#xE732;</a></h2>
+<p>To set a new target:</p>
+<pre data-lang="sh" style="background-color:#2b303b;color:#c0c5ce;" class="language-sh "><code class="language-sh" data-lang="sh"><span style="color:#bf616a;">psql -c </span><span>&quot;</span><span style="color:#a3be8c;">ALTER SYSTEM SET recovery_target_time TO &#39;2024-06-17 09:30:00+00&#39;</span><span>&quot;
+</span></code></pre>
+<p>This will modify the <code>postgresql.auto.conf</code>:</p>
+<pre data-lang="sh" style="background-color:#2b303b;color:#c0c5ce;" class="language-sh "><code class="language-sh" data-lang="sh"><span style="color:#bf616a;">$</span><span> cat /db/16/postgresql.auto.conf
+</span><span style="color:#65737e;"># Do not edit this file manually!
+</span><span style="color:#65737e;"># It will be overwritten by the ALTER SYSTEM command.
+</span><span style="color:#bf616a;">restore_command</span><span> = &#39;</span><span style="color:#a3be8c;">pgbackrest --stanza=standalone archive-get %f &quot;%p&quot;</span><span>&#39;
+</span><span style="color:#bf616a;">recovery_target_time</span><span> = &#39;</span><span style="color:#a3be8c;">2024-06-17 09:30:00+00</span><span>&#39;
+</span></code></pre>
+<p>Now, restart postgres:</p>
+<pre data-lang="sh" style="background-color:#2b303b;color:#c0c5ce;" class="language-sh "><code class="language-sh" data-lang="sh"><span style="color:#bf616a;">$</span><span> /usr/lib/postgresql/16/bin/pg_ctl</span><span style="color:#bf616a;"> -D</span><span> /db/16 restart
+</span><span style="color:#bf616a;">waiting</span><span> for server to shut down.... done
+</span><span style="color:#bf616a;">server</span><span> stopped
+</span><span style="color:#bf616a;">waiting</span><span> for server to start....time=2024-06-18 17:13:37 UTC, pid=723863 LOG:  redirecting log output to logging collector process
+</span><span style="color:#bf616a;">time</span><span>=</span><span style="color:#a3be8c;">2024-06-18 </span><span style="color:#bf616a;">17:13:37</span><span> UTC, pid=723863 HINT:  Future log output will appear in directory &quot;</span><span style="color:#a3be8c;">/db/log</span><span>&quot;.
+</span><span style="color:#96b5b4;">.</span><span> done
+</span><span style="color:#bf616a;">server</span><span> started
+</span></code></pre>
+<p>If data is not at the desired point, set a new <code>recovery_target_time</code> and repeat previous steps.</p>
+<h2 id="pg-promote">pg_promote&nbsp;<a class="anchor" href="#pg-promote">&#xE732;</a></h2>
+<p>When data is at the desired point, promote Postgres to primary:</p>
+<pre data-lang="sh" style="background-color:#2b303b;color:#c0c5ce;" class="language-sh "><code class="language-sh" data-lang="sh"><span style="color:#bf616a;">$</span><span> psql</span><span style="color:#bf616a;"> -c </span><span>&quot;</span><span style="color:#a3be8c;">SELECT pg_promote();</span><span>&quot;
+</span><span> </span><span style="color:#bf616a;">pg_promote
+</span><span style="color:#bf616a;">------------
+</span><span> </span><span style="color:#bf616a;">t
+</span><span>(</span><span style="color:#bf616a;">1</span><span> row)
+</span></code></pre>
+<p>And you can now stop postgres with:</p>
+<pre data-lang="sh" style="background-color:#2b303b;color:#c0c5ce;" class="language-sh "><code class="language-sh" data-lang="sh"><span style="color:#bf616a;">/usr/lib/postgresql/16/bin/pg_ctl -D</span><span> /db/16 stop
+</span></code></pre>
+<h2 id="start-postgresql">Start Postgresql&nbsp;<a class="anchor" href="#start-postgresql">&#xE732;</a></h2>
+<p>Start now using:</p>
+<pre data-lang="sh" style="background-color:#2b303b;color:#c0c5ce;" class="language-sh "><code class="language-sh" data-lang="sh"><span style="color:#bf616a;">systemctl</span><span> start postgresql.service
+</span></code></pre>
+<h2 id="patroni">Patroni&nbsp;<a class="anchor" href="#patroni">&#xE732;</a></h2>
+<p>Stop all nodes in your cluster and follow the restore procedure in node 1 after
+you are at the desired point promote the server and then start
+<a href="https://github.com/patroni/patroni">Patroni</a> so that it can take the
+management over.</p>
+<h2 id="archive">Archive&nbsp;<a class="anchor" href="#archive">&#xE732;</a></h2>
+<p>In <code>postgresql.conf</code> check this options:</p>
+<pre data-lang="toml" style="background-color:#2b303b;color:#c0c5ce;" class="language-toml "><code class="language-toml" data-lang="toml"><span style="color:#bf616a;">archive_command </span><span>= &#39;</span><span style="color:#a3be8c;">pgbackrest --config=/etc/pgbackrest/pgbackrest.conf --stanza=&lt;stanza_name&gt; archive-push %p</span><span>&#39;
+</span><span style="color:#bf616a;">archive_mode </span><span>= </span><span style="background-color:#bf616a;color:#2b303b;">on</span><span>
+</span><span style="color:#bf616a;">archive_timeout </span><span>= </span><span style="color:#d08770;">300
+</span></code></pre>
+<p>To archive manually switching WAL files ensures that the current WAL file is completed and archived promptly:</p>
+<pre data-lang="sh" style="background-color:#2b303b;color:#c0c5ce;" class="language-sh "><code class="language-sh" data-lang="sh"><span style="color:#bf616a;">psql -c </span><span>&quot;</span><span style="color:#a3be8c;">select *, current_timestamp from pg_switch_wal()</span><span>&quot;;
+</span></code></pre>
+<h2 id="timelines">timelines&nbsp;<a class="anchor" href="#timelines">&#xE732;</a></h2>
+<p>If you restore multiple times it could happen that you are in a different
+timeline, to check the current timeline, you can use <code>pgbcakrest info</code> or also <code>pgbackres repo-ls archive</code>, for example this is the output of <code>pgbackrest info</code>:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>full backup: 20250119-125503F
+</span><span>     timestamp start/stop: 2025-01-19 12:55:03+01 / 2025-01-19 12:56:26+01
+</span><span>     wal start/stop: 0000002D000001160000006C / 0000002D000001160000006D
+</span><span>     database size: 28.8GB, database backup size: 28.8GB
+</span><span>     repo1: backup size: 5.0GB
+</span><span>
+</span><span> diff backup: 20250119-125503F_20250120-125503D
+</span><span>     timestamp start/stop: 2025-01-20 12:55:03+01 / 2025-01-20 12:56:07+01
+</span><span>     wal start/stop: 0000002D000001170000009A / 0000002D000001170000009B
+</span><span>     database size: 28.8GB, database backup size: 3.4GB
+</span><span>     repo1: backup size: 365.3MB
+</span><span>     backup reference total: 1 full
+</span><span>
+</span><span> diff backup: 20250119-125503F_20250121-125503D
+</span><span>     timestamp start/stop: 2025-01-21 12:55:03+01 / 2025-01-21 12:56:13+01
+</span><span>     wal start/stop: 0000002D00000118000000B5 / 0000002D00000118000000B6
+</span><span>     database size: 28.9GB, database backup size: 3.4GB
+</span><span>     repo1: backup size: 418.9MB
+</span><span>     backup reference total: 1 full
+</span><span>
+</span><span> diff backup: 20250119-125503F_20250122-015503D
+</span><span>     timestamp start/stop: 2025-01-22 01:55:03+01 / 2025-01-22 01:57:28+01
+</span><span>     wal start/stop: 0000002E000001190000004E / 0000002E000001190000004F
+</span><span>     database size: 28.9GB, database backup size: 3.5GB
+</span><span>     repo1: backup size: 661.8MB
+</span><span>     backup reference total: 1 full
+</span><span>
+</span></code></pre>
+<p>If you would like to restore to <code>2025-01-22 09:55:22.716307+00</code> the timeline is <code>2E</code> and the LSN is <code>0000002E000001190000004F</code>, but to use it in pgbackrest you need to use <code>46</code> the decimal value, so you could use something like:</p>
+<pre data-lang="sh" style="background-color:#2b303b;color:#c0c5ce;" class="language-sh "><code class="language-sh" data-lang="sh"><span style="color:#bf616a;">pgbackrest --stanza</span><span>=standalone \
+</span><span style="color:#bf616a;">--delta </span><span>\
+</span><span style="color:#bf616a;">--log-level-console</span><span>=info \
+</span><span style="color:#bf616a;">--type</span><span>=time \
+</span><span style="color:#bf616a;">--target</span><span>=&quot;</span><span style="color:#a3be8c;">2024-06-17 09:18:22+00</span><span>&quot; \
+</span><span style="color:#bf616a;">--target-timeline</span><span>=46 \
+</span><span style="color:#bf616a;">--target-action</span><span>=pause restore
+</span></code></pre>
+<blockquote>
+<p>the <code>--target=timeline=46</code> is the decimal value of the timeline <code>2E</code></p>
+</blockquote>
+
+    
+        </div>
+
+    </article>
+</main>
+
+
+    <script type="text/javascript" src="https://dbre.xyz/elasticlunr.min.js" defer></script>
+    <script type="text/javascript" src="https://dbre.xyz/search_index.en.js" defer></script>
+<script type="text/javascript" src="https://dbre.xyz/js.js" defer></script>
+
+</body>
+</html>

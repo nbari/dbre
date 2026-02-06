@@ -1,0 +1,230 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://dbre.xyz/main.css">
+    <link rel="icon" href="https://dbre.xyz/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <title> DBRE.xyz | Backups </title>
+</head>
+<body>
+
+<main>
+    
+    <nav>
+            <a href="https:&#x2F;&#x2F;dbre.xyz">
+                        <img src="https://dbre.xyz/logo.svg" alt="logo"/>
+                    </a>
+                <a href="javascript:void(0);" onclick="burger()" id="mobile" class="ms-Icon--GlobalNavButton"></a>
+            <div id="trees">
+                <input class="tree-toggle" type="checkbox" id="mariadb"
+                           />
+                    <label class="tree-toggle-label"
+                           for="mariadb">MariaDB</label>
+
+                    <ul class="subtree">
+                        <li >
+                                <a href="https://dbre.xyz/mariadb/logical-backup/">Logical backup</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/mariadb/physical-backup/">Physical backup</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/mariadb/lock-wait-timeout/">Lock Wait Timeout</a>
+                            </li>
+
+                            </ul>
+                <input class="tree-toggle" type="checkbox" id="postgresql"
+                           checked/>
+                    <label class="tree-toggle-label"
+                           for="postgresql">PostgreSQL</label>
+
+                    <ul class="subtree">
+                        <li >
+                                <a href="https://dbre.xyz/postgresql/pitr/">Point-In-Time Recovery</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/latency-connectivity/">Latency &amp; Connectivity</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/restore-point/">pg_create_restore_point</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/slow-queries/">slow queries</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/psqlrc/">.psqlrc</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/size/">database size</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/extensions/">Extensions</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/upgrade/">Upgrade major version</a>
+                            </li>
+
+                            <li class="active">
+                                <a href="https://dbre.xyz/postgresql/backups/">Backups</a>
+                            </li>
+
+                            
+                                    
+                                    
+                                        <ul id="toc">
+                                            <li><a href="
+                                                        https://dbre.xyz/postgresql/backups/#phyisical-backups">Phyisical backups</a>
+                                                    </li>
+                                            <li><a href="
+                                                        https://dbre.xyz/postgresql/backups/#logical-backups">Logical backups</a>
+                                                    <ul>
+                                                            <li>
+                                                                    <a href="https://dbre.xyz/postgresql/backups/#using-pg-dump">Using pg_dump</a>
+                                                                </li>
+                                                            <li>
+                                                                    <a href="https://dbre.xyz/postgresql/backups/#using-pg-dumpall">Using pg_dumpall</a>
+                                                                </li>
+                                                            <li>
+                                                                    <a href="https://dbre.xyz/postgresql/backups/#example-for-full-logical-backup-and-restore">Example for full logical backup and restore</a>
+                                                                </li>
+                                                            </ul>
+                                                    </li>
+                                            </ul>
+                                    <li >
+                                <a href="https://dbre.xyz/postgresql/rsync/">rsync</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/checkpoint/">checkpoint</a>
+                            </li>
+
+                            </ul>
+                <input class="tree-toggle" type="checkbox" id="common"
+                           />
+                    <label class="tree-toggle-label"
+                           for="common">Common</label>
+
+                    <ul class="subtree">
+                        <li >
+                                <a href="https://dbre.xyz/common/io/">I&#x2F;O</a>
+                            </li>
+
+                            </ul>
+                </div>
+        </nav>
+    <article>
+
+        <div id="on_right">
+                <span id="search-ico" class="ms-Icon--Search"></span>
+            </div>
+            <div class="search-container">
+                <input id="search" type="search" placeholder="Search as you type...">
+                <div class="search-results">
+                    <div class="search-results__header"></div>
+                    <ul class="search-results__items"></ul>
+                </div>
+            </div>
+        <div id="wrap">
+            
+        <h2 id="phyisical-backups">Phyisical backups&nbsp;<a class="anchor" href="#phyisical-backups">&#xE732;</a></h2>
+<p>Example using <code>pg_basebackup</code>:</p>
+<pre data-lang="bash" style="background-color:#2b303b;color:#c0c5ce;" class="language-bash "><code class="language-bash" data-lang="bash"><span style="color:#bf616a;">pg_basebackup -D</span><span> /tmp/pgbackup</span><span style="color:#bf616a;"> -F</span><span> tar</span><span style="color:#bf616a;"> -z -X</span><span> stream</span><span style="color:#bf616a;"> -c</span><span> fast</span><span style="color:#bf616a;"> -P -U</span><span> postgres
+</span></code></pre>
+<p>If want to run this remotely need to add the <code>-h</code> option with the IP address of the PostgreSQL server:</p>
+<pre data-lang="bash" style="background-color:#2b303b;color:#c0c5ce;" class="language-bash "><code class="language-bash" data-lang="bash"><span style="color:#bf616a;">pg_basebackup -h </span><span>&lt;postgresql-ip&gt; -p 5432</span><span style="color:#bf616a;"> -D</span><span> /tmp/pgbackup</span><span style="color:#bf616a;"> -F</span><span> tar</span><span style="color:#bf616a;"> -z -X</span><span> stream</span><span style="color:#bf616a;"> -c</span><span> fast</span><span style="color:#bf616a;"> -P -U</span><span> postgres
+</span></code></pre>
+<p>This will backup all the data into a tar file in <code>/tmp/pgbackup</code>. and create the file:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>- base.tar.gz
+</span><span>- pg_wal.tar.gz
+</span><span>- backup_manifest
+</span></code></pre>
+<p>To restore, you need to delete the PGDATA directory and extract the tar files:</p>
+<pre data-lang="bash" style="background-color:#2b303b;color:#c0c5ce;" class="language-bash "><code class="language-bash" data-lang="bash"><span style="color:#bf616a;">rm -rf</span><span> /var/lib/postgresql/16
+</span></code></pre>
+<p>Then extract the tar files:</p>
+<pre data-lang="bash" style="background-color:#2b303b;color:#c0c5ce;" class="language-bash "><code class="language-bash" data-lang="bash"><span style="color:#bf616a;">tar -xzf</span><span> /tmp/pgbackup/base.tar.gz</span><span style="color:#bf616a;"> -C</span><span> /var/lib/postgresql/16
+</span><span style="color:#bf616a;">tar -xzf</span><span> /tmp/pgbackup/pg_wal.tar.gz</span><span style="color:#bf616a;"> -C</span><span> /var/lib/postgresql/16/pg_wal
+</span></code></pre>
+<p>Start the PostgreSQL server:</p>
+<pre data-lang="bash" style="background-color:#2b303b;color:#c0c5ce;" class="language-bash "><code class="language-bash" data-lang="bash"><span style="color:#bf616a;">pg_ctl -D</span><span> /var/lib/postgresql/16 start
+</span></code></pre>
+<h2 id="logical-backups">Logical backups&nbsp;<a class="anchor" href="#logical-backups">&#xE732;</a></h2>
+<p>A logical backup captures the database contents as SQL commands that can recreate the schema and data from scratch.
+It differs from a physical backup, which copies the raw data files from disk.</p>
+<p>Logical backups are:</p>
+<ul>
+<li>Portable across PostgreSQL versions and platforms.</li>
+<li>Human-readable (plain SQL).</li>
+<li>Ideal for small to medium databases or versioned schema backups.</li>
+</ul>
+<p>They are created using pg_dump (for one database) or pg_dumpall (for all databases or global objects).</p>
+<h3 id="using-pg-dump">Using pg_dump&nbsp;<a class="anchor" href="#using-pg-dump">&#xE732;</a></h3>
+<p>Example command to back up a single database:</p>
+<pre data-lang="bash" style="background-color:#2b303b;color:#c0c5ce;" class="language-bash "><code class="language-bash" data-lang="bash"><span style="color:#bf616a;">pg_dump </span><span>\
+</span><span style="color:#bf616a;">  -h </span><span>&lt;your IP&gt;\
+</span><span>  -U &lt;your user&gt;\
+</span><span>  -F p \
+</span><span style="color:#bf616a;">  --encoding</span><span>=UTF8 \
+</span><span style="color:#bf616a;">  --no-owner </span><span>\
+</span><span style="color:#bf616a;">  --no-privileges </span><span>\
+</span><span style="color:#bf616a;">  --blobs </span><span>\
+</span><span style="color:#bf616a;">  --serializable-deferrable </span><span>\
+</span><span>  mydatabase \
+</span><span>  | </span><span style="color:#bf616a;">gzip </span><span>&gt; mydatabase_$(</span><span style="color:#bf616a;">date</span><span> +%</span><span style="color:#bf616a;">F</span><span>).sql.gz
+</span></code></pre>
+<blockquote>
+<p>This will not backup roles and tablespaces, you need to recreate them manually.</p>
+</blockquote>
+<table><thead><tr><th>Flag</th><th>Purpose</th><th>Why It Matters</th></tr></thead><tbody>
+<tr><td><code>-F p</code></td><td>Plain SQL format</td><td>Widely portable and readable</td></tr>
+<tr><td><code>--encoding=UTF8</code></td><td>Force UTF-8 output</td><td>Avoids locale/charset issues</td></tr>
+<tr><td><code>--no-owner</code></td><td>Skip ownership</td><td>Avoids permission mismatches</td></tr>
+<tr><td><code>--no-privileges</code></td><td>Skip GRANTs</td><td>Simplifies cross-environment restore</td></tr>
+<tr><td><code>--blobs</code></td><td>Include large objects</td><td>Ensures all data included</td></tr>
+<tr><td><code>--serializable-deferrable</code></td><td>Transaction-safe dump</td><td>Consistency for live systems</td></tr>
+<tr><td><code>--no-comments</code></td><td>Skip comments</td><td>Reduces noise, increases diffability</td></tr>
+</tbody></table>
+<p>To restore the backup, use the following command:</p>
+<pre data-lang="bash" style="background-color:#2b303b;color:#c0c5ce;" class="language-bash "><code class="language-bash" data-lang="bash"><span style="color:#bf616a;">gunzip -c</span><span> mydatabase_2025-10-29.sql.gz | </span><span style="color:#bf616a;">psql -U</span><span> postgres</span><span style="color:#bf616a;"> -d</span><span> mydatabase
+</span></code></pre>
+<h3 id="using-pg-dumpall">Using pg_dumpall&nbsp;<a class="anchor" href="#using-pg-dumpall">&#xE732;</a></h3>
+<p>To back up all databases and global objects (like roles and tablespaces), use <code>pg_dumpall</code>:</p>
+<pre data-lang="bash" style="background-color:#2b303b;color:#c0c5ce;" class="language-bash "><code class="language-bash" data-lang="bash"><span style="color:#bf616a;">pg_dumpall -U</span><span> postgres &gt; full_backup.sql
+</span></code></pre>
+<p>To restore the backup created by <code>pg_dumpall</code>, use the following command:</p>
+<pre data-lang="bash" style="background-color:#2b303b;color:#c0c5ce;" class="language-bash "><code class="language-bash" data-lang="bash"><span style="color:#bf616a;">psql -U</span><span> postgres</span><span style="color:#bf616a;"> -f</span><span> full_backup.sql
+</span></code></pre>
+<h3 id="example-for-full-logical-backup-and-restore">Example for full logical backup and restore&nbsp;<a class="anchor" href="#example-for-full-logical-backup-and-restore">&#xE732;</a></h3>
+<p>Backup only globals (roles and tablespaces):</p>
+<pre data-lang="bash" style="background-color:#2b303b;color:#c0c5ce;" class="language-bash "><code class="language-bash" data-lang="bash"><span style="color:#bf616a;">pg_dumpall -U</span><span> postgres</span><span style="color:#bf616a;"> --globals-only </span><span>&gt; globals.sql
+</span></code></pre>
+<p>Backup all databases separately for more granular control:</p>
+<pre data-lang="bash" style="background-color:#2b303b;color:#c0c5ce;" class="language-bash "><code class="language-bash" data-lang="bash"><span style="color:#bf616a;">pg_dump -U</span><span> postgres mydb1 &gt; mydb1.sql
+</span><span style="color:#bf616a;">pg_dump -U</span><span> postgres mydb2 &gt; mydb2.sql
+</span><span style="color:#bf616a;">pg_dump -U</span><span> postgres mydb3 &gt; mydb3.sql
+</span><span style="color:#bf616a;">...
+</span></code></pre>
+
+    
+        </div>
+
+    </article>
+</main>
+
+
+    <script type="text/javascript" src="https://dbre.xyz/elasticlunr.min.js" defer></script>
+    <script type="text/javascript" src="https://dbre.xyz/search_index.en.js" defer></script>
+<script type="text/javascript" src="https://dbre.xyz/js.js" defer></script>
+
+</body>
+</html>

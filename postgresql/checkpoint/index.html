@@ -1,0 +1,221 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://dbre.xyz/main.css">
+    <link rel="icon" href="https://dbre.xyz/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <title> DBRE.xyz | checkpoint </title>
+</head>
+<body>
+
+<main>
+    
+    <nav>
+            <a href="https:&#x2F;&#x2F;dbre.xyz">
+                        <img src="https://dbre.xyz/logo.svg" alt="logo"/>
+                    </a>
+                <a href="javascript:void(0);" onclick="burger()" id="mobile" class="ms-Icon--GlobalNavButton"></a>
+            <div id="trees">
+                <input class="tree-toggle" type="checkbox" id="mariadb"
+                           />
+                    <label class="tree-toggle-label"
+                           for="mariadb">MariaDB</label>
+
+                    <ul class="subtree">
+                        <li >
+                                <a href="https://dbre.xyz/mariadb/logical-backup/">Logical backup</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/mariadb/physical-backup/">Physical backup</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/mariadb/lock-wait-timeout/">Lock Wait Timeout</a>
+                            </li>
+
+                            </ul>
+                <input class="tree-toggle" type="checkbox" id="postgresql"
+                           checked/>
+                    <label class="tree-toggle-label"
+                           for="postgresql">PostgreSQL</label>
+
+                    <ul class="subtree">
+                        <li >
+                                <a href="https://dbre.xyz/postgresql/pitr/">Point-In-Time Recovery</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/latency-connectivity/">Latency &amp; Connectivity</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/restore-point/">pg_create_restore_point</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/slow-queries/">slow queries</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/psqlrc/">.psqlrc</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/size/">database size</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/extensions/">Extensions</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/upgrade/">Upgrade major version</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/backups/">Backups</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/rsync/">rsync</a>
+                            </li>
+
+                            <li class="active">
+                                <a href="https://dbre.xyz/postgresql/checkpoint/">checkpoint</a>
+                            </li>
+
+                            
+                                    
+                                    
+                                        <ul id="toc">
+                                            <li><a href="
+                                                        https://dbre.xyz/postgresql/checkpoint/#checkpoint">Checkpoint</a>
+                                                    <ul>
+                                                            <li>
+                                                                    <a href="https://dbre.xyz/postgresql/checkpoint/#relationship-between-wal-segment-size-and-max-wal-size">Relationship between wal_segment_size and max_wal_size</a>
+                                                                </li>
+                                                            <li>
+                                                                    <a href="https://dbre.xyz/postgresql/checkpoint/#where-the-wal-files-are-stored">Where the WAL files are stored</a>
+                                                                </li>
+                                                            <li>
+                                                                    <a href="https://dbre.xyz/postgresql/checkpoint/#test-checkpoint-settings">Test Checkpoint settings</a>
+                                                                </li>
+                                                            <li>
+                                                                    <a href="https://dbre.xyz/postgresql/checkpoint/#monitor-current-wal-usage">Monitor current WAL usage:</a>
+                                                                </li>
+                                                            </ul>
+                                                    </li>
+                                            </ul>
+                                    </ul>
+                <input class="tree-toggle" type="checkbox" id="common"
+                           />
+                    <label class="tree-toggle-label"
+                           for="common">Common</label>
+
+                    <ul class="subtree">
+                        <li >
+                                <a href="https://dbre.xyz/common/io/">I&#x2F;O</a>
+                            </li>
+
+                            </ul>
+                </div>
+        </nav>
+    <article>
+
+        <div id="on_right">
+                <span id="search-ico" class="ms-Icon--Search"></span>
+            </div>
+            <div class="search-container">
+                <input id="search" type="search" placeholder="Search as you type...">
+                <div class="search-results">
+                    <div class="search-results__header"></div>
+                    <ul class="search-results__items"></ul>
+                </div>
+            </div>
+        <div id="wrap">
+            
+        <h2 id="checkpoint">Checkpoint&nbsp;<a class="anchor" href="#checkpoint">&#xE732;</a></h2>
+<p>A checkpoint is a critical operation in PostgreSQL that ensures data integrity
+and durability. It involves writing all modified data pages (dirty pages) from
+the shared buffer cache to the disk, as well as updating the write-ahead log
+(WAL) to reflect these changes. Checkpoints help minimize recovery time in case
+of a crash by reducing the amount of WAL that needs to be replayed.</p>
+<p>But defaults are conservative, and checkpoints may occur more frequently than
+necessary for your workload. Frequent checkpoints can lead to increased I/O
+activity, which may impact performance. By tuning checkpoint settings, you can
+optimize the balance between data durability and system performance.</p>
+<p>Change the <code>checkpoint_timeout</code> to a longer duration, for example:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>checkpoint_timeout = 30min
+</span></code></pre>
+<p>Optional settings to consider:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>min_wal_size = 2 * wal_segment_size
+</span><span>max_wal_size = 8 * wal_segment_size &lt;-- this may fill up the disk if wal_segment_size is large
+</span></code></pre>
+<h3 id="relationship-between-wal-segment-size-and-max-wal-size">Relationship between <code>wal_segment_size</code> and <code>max_wal_size</code>&nbsp;<a class="anchor" href="#relationship-between-wal-segment-size-and-max-wal-size">&#xE732;</a></h3>
+<p><code>wal_segment_size</code> → the size of a single WAL file on disk.</p>
+<p><code>max_wal_size</code> → the target maximum total WAL space before a checkpoint triggers.</p>
+<p>For example if <code>wal_segment_size</code> is 16MB and <code>max_wal_size</code> is 1GB, then a
+checkpoint will be triggered after approximately 64 WAL files (1GB / 16MB) have
+been generated.</p>
+<p>if <code>wal_segment_size</code> is increased, for example to 64MB, and <code>max_wal_size</code>
+remains at 1GB, then a checkpoint will be triggered after approximately 16 WAL
+files (1GB / 64MB) have been generated.</p>
+<p>This means that with a larger <code>wal_segment_size</code>, checkpoints may occur less
+frequently in terms of the number of WAL files, but the total amount of WAL
+data written before a checkpoint remains the same as defined by <code>max_wal_size</code>.</p>
+<h3 id="where-the-wal-files-are-stored">Where the WAL files are stored&nbsp;<a class="anchor" href="#where-the-wal-files-are-stored">&#xE732;</a></h3>
+<p>WAL files are stored in the <code>pg_wal</code> directory within the PostgreSQL data:</p>
+<pre data-lang="sql" style="background-color:#2b303b;color:#c0c5ce;" class="language-sql "><code class="language-sql" data-lang="sql"><span>SHOW data_directory;
+</span></code></pre>
+<p>list the files in the <code>pg_wal</code> directory:</p>
+<pre data-lang="bash" style="background-color:#2b303b;color:#c0c5ce;" class="language-bash "><code class="language-bash" data-lang="bash"><span style="color:#bf616a;">ls -lh </span><span>$</span><span style="color:#bf616a;">PGDATA</span><span>/pg_wal
+</span></code></pre>
+<p>Even with a long checkpoint_timeout, PostgreSQL may still trigger a checkpoint if WAL reaches <code>max_wal_size</code>, example:</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>wal_segment_size = 64MB
+</span><span>max_wal_size = 256MB
+</span><span>checkpoint_timeout = 30min
+</span></code></pre>
+<p>You'll see <code>~4 WAL</code> files fill up before a checkpoint is forced (4 × 64 MB = 256 MB).</p>
+<h3 id="test-checkpoint-settings">Test Checkpoint settings&nbsp;<a class="anchor" href="#test-checkpoint-settings">&#xE732;</a></h3>
+<pre data-lang="sql" style="background-color:#2b303b;color:#c0c5ce;" class="language-sql "><code class="language-sql" data-lang="sql"><span>ALTER SYSTEM </span><span style="color:#b48ead;">SET</span><span> checkpoint_timeout = &#39;</span><span style="color:#a3be8c;">30s</span><span>&#39;;
+</span><span>ALTER SYSTEM </span><span style="color:#b48ead;">SET</span><span> max_wal_size = &#39;</span><span style="color:#a3be8c;">256MB</span><span>&#39;;
+</span><span>ALTER SYSTEM </span><span style="color:#b48ead;">SET</span><span> log_checkpoints = on;
+</span></code></pre>
+<p>Then reload PostgreSQL:</p>
+<pre data-lang="sql" style="background-color:#2b303b;color:#c0c5ce;" class="language-sql "><code class="language-sql" data-lang="sql"><span style="color:#b48ead;">SELECT</span><span> pg_reload_conf();
+</span></code></pre>
+<p>Use pgbench to generate some load, first initialize the database:</p>
+<pre data-lang="bash" style="background-color:#2b303b;color:#c0c5ce;" class="language-bash "><code class="language-bash" data-lang="bash"><span style="color:#bf616a;">pgbench -i -s</span><span> 50 postgres
+</span></code></pre>
+<p>Then run pgbench with 10 clients for 5 minutes:</p>
+<pre data-lang="bash" style="background-color:#2b303b;color:#c0c5ce;" class="language-bash "><code class="language-bash" data-lang="bash"><span style="color:#bf616a;">pgbench -c</span><span> 10</span><span style="color:#bf616a;"> -T</span><span> 300 postgres
+</span></code></pre>
+<h3 id="monitor-current-wal-usage">Monitor current WAL usage:&nbsp;<a class="anchor" href="#monitor-current-wal-usage">&#xE732;</a></h3>
+<p>You can check the current WAL usage and the last checkpoint location using the following SQL query:</p>
+<pre data-lang="sql" style="background-color:#2b303b;color:#c0c5ce;" class="language-sql "><code class="language-sql" data-lang="sql"><span style="color:#65737e;">-- MB since last checkpoint
+</span><span style="color:#b48ead;">SELECT</span><span> pg_wal_lsn_diff(pg_current_wal_lsn(), checkpoint_lsn)/</span><span style="color:#d08770;">1024</span><span>/</span><span style="color:#d08770;">1024 </span><span>AS mb_wal_since_checkpoint
+</span><span style="color:#b48ead;">FROM</span><span> pg_control_checkpoint(); \watch </span><span style="color:#d08770;">1
+</span></code></pre>
+<p>And also list the <code>pg_wal</code> directory to see the number of WAL files:</p>
+<pre data-lang="bash" style="background-color:#2b303b;color:#c0c5ce;" class="language-bash "><code class="language-bash" data-lang="bash"><span style="color:#bf616a;">watch</span><span> ls</span><span style="color:#bf616a;"> -lh </span><span>$</span><span style="color:#bf616a;">PGDATA</span><span>/pg_wal
+</span></code></pre>
+<p>You can adjust the <code>checkpoint_timeout</code> and <code>max_wal_size</code> settings to see how
+they affect the frequency of checkpoints and the number of WAL files generated,
+also theck the PostgreSQL logs for checkpoint messages if <code>log_checkpoints</code> is
+enabled.</p>
+
+    
+        </div>
+
+    </article>
+</main>
+
+
+    <script type="text/javascript" src="https://dbre.xyz/elasticlunr.min.js" defer></script>
+    <script type="text/javascript" src="https://dbre.xyz/search_index.en.js" defer></script>
+<script type="text/javascript" src="https://dbre.xyz/js.js" defer></script>
+
+</body>
+</html>

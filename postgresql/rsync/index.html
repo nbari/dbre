@@ -1,0 +1,284 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://dbre.xyz/main.css">
+    <link rel="icon" href="https://dbre.xyz/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <title> DBRE.xyz | rsync </title>
+</head>
+<body>
+
+<main>
+    
+    <nav>
+            <a href="https:&#x2F;&#x2F;dbre.xyz">
+                        <img src="https://dbre.xyz/logo.svg" alt="logo"/>
+                    </a>
+                <a href="javascript:void(0);" onclick="burger()" id="mobile" class="ms-Icon--GlobalNavButton"></a>
+            <div id="trees">
+                <input class="tree-toggle" type="checkbox" id="mariadb"
+                           />
+                    <label class="tree-toggle-label"
+                           for="mariadb">MariaDB</label>
+
+                    <ul class="subtree">
+                        <li >
+                                <a href="https://dbre.xyz/mariadb/logical-backup/">Logical backup</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/mariadb/physical-backup/">Physical backup</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/mariadb/lock-wait-timeout/">Lock Wait Timeout</a>
+                            </li>
+
+                            </ul>
+                <input class="tree-toggle" type="checkbox" id="postgresql"
+                           checked/>
+                    <label class="tree-toggle-label"
+                           for="postgresql">PostgreSQL</label>
+
+                    <ul class="subtree">
+                        <li >
+                                <a href="https://dbre.xyz/postgresql/pitr/">Point-In-Time Recovery</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/latency-connectivity/">Latency &amp; Connectivity</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/restore-point/">pg_create_restore_point</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/slow-queries/">slow queries</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/psqlrc/">.psqlrc</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/size/">database size</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/extensions/">Extensions</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/upgrade/">Upgrade major version</a>
+                            </li>
+
+                            <li >
+                                <a href="https://dbre.xyz/postgresql/backups/">Backups</a>
+                            </li>
+
+                            <li class="active">
+                                <a href="https://dbre.xyz/postgresql/rsync/">rsync</a>
+                            </li>
+
+                            
+                                    
+                                    
+                                        <li >
+                                <a href="https://dbre.xyz/postgresql/checkpoint/">checkpoint</a>
+                            </li>
+
+                            </ul>
+                <input class="tree-toggle" type="checkbox" id="common"
+                           />
+                    <label class="tree-toggle-label"
+                           for="common">Common</label>
+
+                    <ul class="subtree">
+                        <li >
+                                <a href="https://dbre.xyz/common/io/">I&#x2F;O</a>
+                            </li>
+
+                            </ul>
+                </div>
+        </nav>
+    <article>
+
+        <div id="on_right">
+                <span id="search-ico" class="ms-Icon--Search"></span>
+            </div>
+            <div class="search-container">
+                <input id="search" type="search" placeholder="Search as you type...">
+                <div class="search-results">
+                    <div class="search-results__header"></div>
+                    <ul class="search-results__items"></ul>
+                </div>
+            </div>
+        <div id="wrap">
+            
+        <h2 id="rsync">Rsync&nbsp;<a class="anchor" href="#rsync">&#xE732;</a></h2>
+<p>You can use <code>rsync</code> if need to move your PostgreSQL data directory to another
+location. This is useful if you are running out of space on the current disk or
+if you want to move the data directory to a faster disk.</p>
+<p>This can be done without stopping the PostgreSQL server, the steps are as
+follows:</p>
+<ol>
+<li><code>rsync</code> the data directory to the new location.</li>
+<li>Once almost all the data is copied, you can either stop the PostgreSQL server (advised) and sync the ramaining data or take a <code>pg_backup_start</code>,  rsync the remaining data and then take a <code>pg_backup_stop</code> and then sync again.</li>
+<li>update the <code>data_directory</code> parameter in <code>postgresql.conf</code> of the new location</li>
+<li>start the PostgreSQL server</li>
+</ol>
+<p>Here is an example of how to do this, from the active server to a new server:</p>
+<pre data-lang="bash" style="background-color:#2b303b;color:#c0c5ce;" class="language-bash "><code class="language-bash" data-lang="bash"><span style="color:#bf616a;">rsync -aHAXx --numeric-ids --delete --info</span><span>=progress2</span><span style="color:#bf616a;"> --inplace --partial </span><span>\
+</span><span style="color:#bf616a;">  -e </span><span>&quot;</span><span style="color:#a3be8c;">ssh -T -c aes128-gcm@openssh.com -o Compression=no -x</span><span>&quot; \
+</span><span style="color:#bf616a;">  --exclude</span><span> postmaster.pid \
+</span><span style="color:#bf616a;">  --exclude</span><span> postmaster.opts \
+</span><span>  /opt/postgres/16 \
+</span><span>  newserver:/opt/postgres/
+</span></code></pre>
+<blockquote>
+<p>You may also exclude the pg_ha.conf, pg_indent.conf and the postgresql.conf if you want to keep the old configuration files.</p>
+</blockquote>
+<p>The ssh options explained (This often doubles throughput on LANs):</p>
+<pre style="background-color:#2b303b;color:#c0c5ce;"><code><span>-T disables SSH pseudo-tty (tiny win).
+</span><span>-c aes128-gcm@openssh.com uses a very fast cipher (assuming OpenSSH ≥ 6.2).
+</span><span>-o Compression=no avoids double compression overhead.
+</span><span>-x disables X11 forwarding (tiny win).
+</span></code></pre>
+<p>Once the rsync is almost done, create the backup label and sync again:</p>
+<pre data-lang="sql" style="background-color:#2b303b;color:#c0c5ce;" class="language-sql "><code class="language-sql" data-lang="sql"><span style="color:#b48ead;">SELECT</span><span> pg_backup_start(&#39;</span><span style="color:#a3be8c;">rsync_migration</span><span>&#39;, </span><span style="color:#d08770;">true</span><span>);
+</span></code></pre>
+<blockquote>
+<p>The <code>true</code> will try to create the checkpoint faster</p>
+</blockquote>
+<p>This is useful because PostgreSQL does not flush everything instantly to disk; many pages live in shared buffers and are written to disk later. By taking a backup label, you ensure that the data is in a consistent state.</p>
+<p><code>pg_backup_start</code> performs a checkpoint, starts a full-page write in WAL, and creates a backup label file in the data directory. This ensures that the data copied is consistent and can be used for recovery if needed.</p>
+<p>Then run the rsync again to copy the remaining data and when finished run:</p>
+<pre data-lang="sql" style="background-color:#2b303b;color:#c0c5ce;" class="language-sql "><code class="language-sql" data-lang="sql"><span style="color:#b48ead;">SELECT</span><span> pg_backup_stop();
+</span></code></pre>
+<p>Save the output of <code>pg_backup_stop()</code>, as it contains the backup_label and the
+WAL segment name needed to make the backup consistent. This tells you which WAL
+files must be copied to the destination for recovery. The output looks like:</p>
+<pre data-lang="txt" style="background-color:#2b303b;color:#c0c5ce;" class="language-txt "><code class="language-txt" data-lang="txt"><span>postgres=# SELECT pg_backup_stop();
+</span><span>NOTICE:  all required WAL segments have been archived
+</span><span>                                  pg_backup_stop
+</span><span>-----------------------------------------------------------------------------------
+</span><span> (20E0/7B000138,&quot;START WAL LOCATION: 20E0/7B000028 (file 00000008000020E00000007B)+
+</span><span> CHECKPOINT LOCATION: 20E0/7B000060                                               +
+</span><span> BACKUP METHOD: streamed                                                          +
+</span><span> BACKUP FROM: primary                                                             +
+</span><span> START TIME: 2025-08-27 13:51:42 UTC                                              +
+</span><span> LABEL: rsync_migration                                                                 +
+</span><span> START TIMELINE: 8                                                                +
+</span><span> &quot;,&quot;&quot;)
+</span><span>(1 row)
+</span><span>
+</span></code></pre>
+<p>In the new server create the <code>backup_label</code> file in the new data directory <code>$PGDATA</code> with the content from the output of <code>pg_backup_stop()</code>., from the example above it would be:</p>
+<pre data-lang="txt" style="background-color:#2b303b;color:#c0c5ce;" class="language-txt "><code class="language-txt" data-lang="txt"><span>START WAL LOCATION: 20E0/7B000028 (file 00000008000020E00000007B)
+</span><span>CHECKPOINT LOCATION: 20E0/7B000060
+</span><span>BACKUP METHOD: streamed
+</span><span>BACKUP FROM: primary
+</span><span>START TIME: 2025-08-27 13:51:42 UTC
+</span><span>LABEL: rsync_migration
+</span><span>START TIMELINE: 8
+</span></code></pre>
+<p>Opionaly, run the <code>rsync</code> again to copy the remaining data.</p>
+<p>Finally, update the <code>data_directory</code> parameter in <code>postgresql.conf</code> on the new server, ensure the <code>backup_label</code> file is present in the new data directory, and start PostgreSQL:</p>
+<h2 id="script">Script&nbsp;<a class="anchor" href="#script">&#xE732;</a></h2>
+<p>Here is a script that automates the process:</p>
+<pre data-lang="bash" style="background-color:#2b303b;color:#c0c5ce;" class="language-bash "><code class="language-bash" data-lang="bash"><span style="color:#65737e;">#!/bin/bash
+</span><span style="color:#96b5b4;">set</span><span> -euo pipefail
+</span><span>
+</span><span style="color:#bf616a;">SRC_PGDATA</span><span>=&quot;</span><span style="color:#a3be8c;">/var/lib/postgresql/15/main</span><span>&quot;
+</span><span style="color:#bf616a;">DST_HOST</span><span>=&quot;</span><span style="color:#a3be8c;">newserver</span><span>&quot;
+</span><span style="color:#bf616a;">DST_PGDATA</span><span>=&quot;</span><span style="color:#a3be8c;">/var/lib/postgresql/15/main</span><span>&quot;
+</span><span style="color:#bf616a;">PGUSER</span><span>=&quot;</span><span style="color:#a3be8c;">postgres</span><span>&quot;
+</span><span>
+</span><span style="color:#bf616a;">RSYNC_OPTS</span><span>=&quot;</span><span style="color:#a3be8c;">-aHAXx --numeric-ids --delete </span><span style="color:#96b5b4;">\
+</span><span style="color:#a3be8c;">  --info=progress2 --partial </span><span style="color:#96b5b4;">\
+</span><span style="color:#a3be8c;">  --exclude postmaster.pid </span><span style="color:#96b5b4;">\
+</span><span style="color:#a3be8c;">  --exclude postmaster.opts </span><span style="color:#96b5b4;">\
+</span><span style="color:#a3be8c;">  --exclude pg_hba.conf </span><span style="color:#96b5b4;">\
+</span><span style="color:#a3be8c;">  --exclude pg_ident.conf </span><span style="color:#96b5b4;">\
+</span><span style="color:#a3be8c;">  --exclude postgresql.conf</span><span>&quot;
+</span><span>
+</span><span style="color:#65737e;"># 1. Start psql as a background coprocess so the session stays open
+</span><span style="color:#65737e;">#    -t: tuples only (no headers)
+</span><span style="color:#65737e;">#    -A: unaligned (no extra whitespace)
+</span><span style="color:#65737e;">#    -q: quiet (no welcome messages)
+</span><span style="color:#96b5b4;">echo </span><span>&quot;</span><span style="color:#a3be8c;">[*] Starting persistent PostgreSQL session...</span><span>&quot;
+</span><span style="color:#b48ead;">coproc </span><span style="color:#8fa1b3;">PG </span><span>{ </span><span style="color:#bf616a;">psql -U </span><span>&quot;$</span><span style="color:#bf616a;">PGUSER</span><span>&quot;</span><span style="color:#bf616a;"> -d</span><span> postgres</span><span style="color:#bf616a;"> -t -A -q</span><span>; }
+</span><span>
+</span><span style="color:#65737e;"># 2. Pre-sync the data directory
+</span><span style="color:#96b5b4;">echo </span><span>&quot;</span><span style="color:#a3be8c;">[*] Pre-syncing data directory (this may take a while)...</span><span>&quot;
+</span><span style="color:#bf616a;">rsync </span><span>$</span><span style="color:#bf616a;">RSYNC_OPTS </span><span>&quot;$</span><span style="color:#bf616a;">SRC_PGDATA</span><span style="color:#a3be8c;">/</span><span>&quot; &quot;$</span><span style="color:#bf616a;">DST_HOST</span><span style="color:#a3be8c;">:</span><span>$</span><span style="color:#bf616a;">DST_PGDATA</span><span style="color:#a3be8c;">/</span><span>&quot;
+</span><span>
+</span><span style="color:#65737e;"># 3. Start backup mode and capture the label
+</span><span style="color:#96b5b4;">echo </span><span>&quot;</span><span style="color:#a3be8c;">[*] Starting PostgreSQL backup mode...</span><span>&quot;
+</span><span style="color:#96b5b4;">echo </span><span>&quot;</span><span style="color:#a3be8c;">SELECT pg_backup_start(&#39;rsync_migration&#39;, true);</span><span>&quot; &gt;&amp;&quot;$</span><span style="color:#a3be8c;">{</span><span style="color:#bf616a;">PG[</span><span style="color:#d08770;">1</span><span style="color:#bf616a;">]</span><span style="color:#a3be8c;">}</span><span>&quot;
+</span><span>
+</span><span style="color:#65737e;"># Read the output to ensure it started (consume the single line output of start)
+</span><span style="color:#96b5b4;">read </span><span style="color:#bf616a;">-r -u </span><span>&quot;$</span><span style="color:#a3be8c;">{</span><span style="color:#bf616a;">PG[</span><span style="color:#d08770;">0</span><span style="color:#bf616a;">]</span><span style="color:#a3be8c;">}</span><span>&quot; _
+</span><span>
+</span><span style="color:#65737e;"># 4. Sync the data directory again to capture any changes since the first sync
+</span><span style="color:#96b5b4;">echo </span><span>&quot;</span><span style="color:#a3be8c;">[*] Syncing data directory again (this should take less time)...</span><span>&quot;
+</span><span style="color:#bf616a;">rsync </span><span>$</span><span style="color:#bf616a;">RSYNC_OPTS </span><span>&quot;$</span><span style="color:#bf616a;">SRC_PGDATA</span><span style="color:#a3be8c;">/</span><span>&quot; &quot;$</span><span style="color:#bf616a;">DST_HOST</span><span style="color:#a3be8c;">:</span><span>$</span><span style="color:#bf616a;">DST_PGDATA</span><span style="color:#a3be8c;">/</span><span>&quot;
+</span><span>
+</span><span style="color:#65737e;"># 5. Send STOP command and fetch the label file content
+</span><span style="color:#65737e;">#    We select only the &#39;labelfile&#39; column.
+</span><span style="color:#65737e;">#    We append a sentinel string &#39;END_OF_LABEL&#39; so we know when to stop reading.
+</span><span style="color:#96b5b4;">echo </span><span>&quot;</span><span style="color:#a3be8c;">[*] Stopping PostgreSQL backup mode and capturing label...</span><span>&quot;
+</span><span style="color:#96b5b4;">echo </span><span>&quot;</span><span style="color:#a3be8c;">SELECT labelfile FROM pg_backup_stop();</span><span>&quot; &gt;&amp;&quot;$</span><span style="color:#a3be8c;">{</span><span style="color:#bf616a;">PG[</span><span style="color:#d08770;">1</span><span style="color:#bf616a;">]</span><span style="color:#a3be8c;">}</span><span>&quot;
+</span><span style="color:#96b5b4;">echo </span><span>&quot;</span><span style="color:#a3be8c;">SELECT &#39;END_OF_LABEL&#39;;</span><span>&quot; &gt;&amp;&quot;$</span><span style="color:#a3be8c;">{</span><span style="color:#bf616a;">PG[</span><span style="color:#d08770;">1</span><span style="color:#bf616a;">]</span><span style="color:#a3be8c;">}</span><span>&quot;
+</span><span>
+</span><span style="color:#65737e;"># 6. Read the label content line-by-line from the coprocess
+</span><span style="color:#bf616a;">backup_label</span><span>=&quot;&quot;
+</span><span style="color:#b48ead;">while </span><span style="color:#96b5b4;">read </span><span style="color:#bf616a;">-r -u </span><span>&quot;$</span><span style="color:#a3be8c;">{</span><span style="color:#bf616a;">PG[</span><span style="color:#d08770;">0</span><span style="color:#bf616a;">]</span><span style="color:#a3be8c;">}</span><span>&quot; line; </span><span style="color:#b48ead;">do
+</span><span>    </span><span style="color:#b48ead;">if </span><span style="color:#96b5b4;">[[ </span><span>&quot;$</span><span style="color:#bf616a;">line</span><span>&quot; == &quot;</span><span style="color:#a3be8c;">END_OF_LABEL</span><span>&quot; </span><span style="color:#96b5b4;">]]</span><span>; </span><span style="color:#b48ead;">then
+</span><span>        </span><span style="color:#b48ead;">break
+</span><span>    </span><span style="color:#b48ead;">fi
+</span><span>    </span><span style="color:#65737e;"># Reconstruct the multiline string
+</span><span>    </span><span style="color:#bf616a;">backup_label</span><span>+=&quot;$</span><span style="color:#bf616a;">line</span><span>&quot;$&#39;</span><span style="color:#96b5b4;">\n</span><span>&#39;
+</span><span style="color:#b48ead;">done
+</span><span>
+</span><span style="color:#65737e;"># Close the coprocess
+</span><span style="color:#96b5b4;">echo </span><span>&quot;</span><span style="color:#a3be8c;">\q</span><span>&quot; &gt;&amp;&quot;$</span><span style="color:#a3be8c;">{</span><span style="color:#bf616a;">PG[</span><span style="color:#d08770;">1</span><span style="color:#bf616a;">]</span><span style="color:#a3be8c;">}</span><span>&quot;
+</span><span>
+</span><span style="color:#65737e;"># 7. Write the label to a temp file
+</span><span style="color:#bf616a;">tmpfile</span><span>=$</span><span style="color:#a3be8c;">(</span><span style="color:#bf616a;">mktemp</span><span style="color:#a3be8c;">)
+</span><span style="color:#65737e;"># The variable contains the exact content needed for the file
+</span><span style="color:#96b5b4;">echo </span><span style="color:#bf616a;">-n </span><span>&quot;$</span><span style="color:#bf616a;">backup_label</span><span>&quot; &gt; &quot;$</span><span style="color:#bf616a;">tmpfile</span><span>&quot;
+</span><span>
+</span><span style="color:#96b5b4;">echo </span><span>&quot;</span><span style="color:#a3be8c;">[*] Last sync of data directory...</span><span>&quot;
+</span><span style="color:#bf616a;">rsync </span><span>$</span><span style="color:#bf616a;">RSYNC_OPTS </span><span>&quot;$</span><span style="color:#bf616a;">SRC_PGDATA</span><span style="color:#a3be8c;">/</span><span>&quot; &quot;$</span><span style="color:#bf616a;">DST_HOST</span><span style="color:#a3be8c;">:</span><span>$</span><span style="color:#bf616a;">DST_PGDATA</span><span style="color:#a3be8c;">/</span><span>&quot;
+</span><span>
+</span><span style="color:#96b5b4;">echo </span><span>&quot;</span><span style="color:#a3be8c;">[*] Installing backup_label on destination...</span><span>&quot;
+</span><span style="color:#bf616a;">scp </span><span>&quot;$</span><span style="color:#bf616a;">tmpfile</span><span>&quot; &quot;$</span><span style="color:#bf616a;">DST_HOST</span><span style="color:#a3be8c;">:</span><span>$</span><span style="color:#bf616a;">DST_PGDATA</span><span style="color:#a3be8c;">/backup_label</span><span>&quot;
+</span><span style="color:#bf616a;">rm -f </span><span>&quot;$</span><span style="color:#bf616a;">tmpfile</span><span>&quot;
+</span><span>
+</span><span style="color:#96b5b4;">echo </span><span>&quot;</span><span style="color:#a3be8c;">[*] Fixing ownership on destination...</span><span>&quot;
+</span><span style="color:#bf616a;">ssh </span><span>&quot;$</span><span style="color:#bf616a;">DST_HOST</span><span>&quot; &quot;</span><span style="color:#a3be8c;">sudo chown -R postgres:postgres </span><span>$</span><span style="color:#bf616a;">DST_PGDATA</span><span>&quot;
+</span><span>
+</span><span style="color:#96b5b4;">echo
+</span><span style="color:#96b5b4;">echo </span><span>&quot;</span><span style="color:#a3be8c;">[*] Migration complete!</span><span>&quot;
+</span><span style="color:#96b5b4;">echo </span><span>&quot;</span><span style="color:#a3be8c;">Now you can start PostgreSQL on </span><span>$</span><span style="color:#bf616a;">DST_HOST</span><span style="color:#a3be8c;"> with:</span><span>&quot;
+</span><span style="color:#96b5b4;">echo </span><span>&quot;</span><span style="color:#a3be8c;">    pg_ctl -D </span><span>$</span><span style="color:#bf616a;">DST_PGDATA</span><span style="color:#a3be8c;"> start</span><span>&quot;
+</span><span style="color:#96b5b4;">echo
+</span><span style="color:#96b5b4;">echo </span><span>&quot;</span><span style="color:#a3be8c;">Don&#39;t forget to update postgresql.conf if needed.</span><span>&quot;
+</span></code></pre>
+
+    
+        </div>
+
+    </article>
+</main>
+
+
+    <script type="text/javascript" src="https://dbre.xyz/elasticlunr.min.js" defer></script>
+    <script type="text/javascript" src="https://dbre.xyz/search_index.en.js" defer></script>
+<script type="text/javascript" src="https://dbre.xyz/js.js" defer></script>
+
+</body>
+</html>
